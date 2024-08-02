@@ -88,7 +88,7 @@
 			A.ROWNUM ASC
 	</select>
 	
-	<!-- contact 조회수 증가 -->
+	<!-- contact 조회수 증가  -->
 	<update id="contactReadCount" parameterType="map">
 		UPDATE
 			DB_HOMEPAGE.OM_CONTACT_DB AS ocd
