@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MainDAO">
+
+
+	<!-- 방문자수 증가 -->
+	<update id="visitIncrement" parameterType="map">
+		INSERT INTO DB_HOMEPAGE.HP_STATS(
+			SEQ,
+			CONNECT_DATE, 
+			CONNECT_TIME, 
+			CONNECT_CNT
+		)
+		VALUES(
+			(SELECT IFNULL(MAX(hs2.SEQ),0)+1 FROM DB_HOMEPAGE.HP_STATS as hs2),
+			#{todayDate},
+			#{todayTime},
+			1
+		)
+		ON DUPLICATE KEY
+		UPDATE CONNECT_CNT = CONNECT_CNT + 1
+		
+	</update>
+	
+	<!-- 모바일 방문자수 증가 -->
+	<update id="visitMobileIncrement" parameterType="map">
+		INSERT INTO DB_HOMEPAGE.MO_STATS(
+			SEQ,
+			CONNECT_DATE,
+			CONNECT_TIME,
+			CONNECT_PAGE,
+			CONNECT_CNT
+		)
+		VALUES(
+			(SELECT IFNULL(MAX(ms2.SEQ),0)+1 FROM DB_HOMEPAGE.MO_STATS as ms2),
+			#{todayDate},
+			#{todayTime},
+			'VISIT',
+			1
+		)
+		ON DUPLICATE KEY
+		UPDATE CONNECT_CNT = CONNECT_CNT + 1
+		
+	</update>
+	
+	<!-- 모바일 방문자수(페이지별) 증가 -->
+	<update id="visitMobilePageIncrement" parameterType="map">
+		INSERT INTO DB_HOMEPAGE.MO_STATS(
+			SEQ,
+			CONNECT_DATE,
+			CONNECT_TIME,
+			CONNECT_PAGE,
+			CONNECT_CNT
+		)
+		VALUES(
+			(SELECT IFNULL(MAX(ms2.SEQ),0)+1 FROM DB_HOMEPAGE.MO_STATS as ms2),
+			#{todayDate},
+			#{todayTime},
+			#{todayPage},
+			1
+		)
+		ON DUPLICATE KEY
+		UPDATE CONNECT_CNT = CONNECT_CNT + 1
+		
+	</update>
+	
+	<!-- 팝업존 리스트 불러오기 -->
+	<select id="popupZoneList" parameterType="map" resultType="hashmap">
+	<![CDATA[
+		SELECT 
+			ha.ALARM_LINK_URL,
+			ha.ALARM_TARGET,
+			ha.ALARM_REAL_PATH
+		FROM 
+			DB_HOMEPAGE.HP_ALARM AS ha
+		WHERE 
+			ha.ALARM_TYPE = #{alarm_type}
+		AND 
+			ha.ALARM_USE = #{alarm_use}
+		AND 
+			DATE_FORMAT(NOW(), '%Y-%m-%d') BETWEEN ALARM_START_DATE AND ALARM_END_DATE
+		ORDER BY 
+			ha.ALARM_ID ASC
+	]]>
+	</select>
+
+	<!-- 팝업리스트(id) 불러오기 -->
+	<select id="popupIdList" parameterType="map" resultType="hashmap">
+		SELECT 
+			ha.ALARM_ID,
+			ha.ALARM_POSITION
+		FROM 
+			DB_HOMEPAGE.HP_ALARM AS ha
+		WHERE 
+			ha.ALARM_TYPE = #{alarm_type}
+		AND 
+			ha.ALARM_USE = #{alarm_use}
+		ORDER BY 
+			ha.ALARM_SORT DESC
+	</select>
+	
+		<!-- 팝업 불러오기 -->
+	<select id="popupDetail" parameterType="map" resultType="hashmap">
+		SELECT 
+			ha.ALARM_ID, 
+			ha.ALARM_TITLE, 
+			ha.ALARM_CONTENT
+		FROM 
+			DB_HOMEPAGE.HP_ALARM AS ha
+		WHERE 
+			ha.ALARM_TYPE = #{alarm_type}
+		<!--
+		AND 
+			ha.ALARM_USE = #{alarm_use}
+		-->	
+		AND
+			ha.ALARM_ID = #{alarm_id}
+		ORDER BY 
+			ha.ALARM_SORT DESC
+	</select>
+	
+	<!-- 기관콜센터 불러오기 -->
+	<select id="centerList" resultType="hashmap">
+		SELECT
+		    CODE_ID,
+		    CODE_NAME
+		FROM
+			DB_HOMEPAGE.HP_CODEBOOK
+		WHERE
+			CODE_TYPE = 'CALL_CENTER'
+		AND
+			USE_YN = '1'
+		ORDER BY
+			CODE_NAME
+	</select>
+	
+	<!-- 게시판 불러오기 clob map -->
+	<resultMap id="boardClobMap" type="HashMap">
+		<result property="BOARD_NUM" 			column="BOARD_NUM"/>
+		<result property="BOARD_TITLE" 			column="BOARD_TITLE"/>
+		<result property="BOARD_REG_DATE" 		column="BOARD_REG_DATE"/>
+		<result property="BOARD_VIEW" 			column="BOARD_VIEW"/>
+		<result property="BOARD_CONTENTS" 		column="BOARD_CONTENTS" jdbcType="CLOB" javaType="String"/>
+		<result property="IS_TOP" 				column="IS_TOP"/>
+	</resultMap>
+	
+	<!-- 게시물 총 개수 -->
+	<select id="boardListCount" parameterType="map" resultType="Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		AND
+			hbd.IS_TOP = 0
+		<if test="sc_type != null and sc_text != null">
+			<if test="sc_type == 'title'">
+				AND
+					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+			</if>
+			
+			<if test="sc_type == 'content'">
+				AND
+					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+			</if>
+			
+			<if test="sc_type == ''">
+				AND (
+					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					OR
+					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+				)
+			</if>
+		</if>
+	</select>
+	
+	<!-- 게시물 리스트 불러오기 -->
+	<select id="boardList" parameterType="map" resultType="hashmap">
+		(
+			SELECT
+				hbd.BOARD_NUM,
+				hbd.BOARD_TITLE,
+				DATE_FORMAT(hbd.BOARD_REG_DATE, '%Y-%m-%d') as BOARD_REG_DATE,
+				hbd.BOARD_VIEW,
+				CASE WHEN hbd.IS_TOP = 1 THEN 'Y' ELSE 'N' END AS IS_TOP,
+				CASE WHEN (SELECT COUNT(*) FROM DB_HOMEPAGE.HP_FILES AS hfl WHERE hfl.BOARD_NUM = hbd.BOARD_NUM AND hfl.ORIGINAL_FILE_NAME not like '%:\%') = 0 THEN 'N' ELSE 'Y' END AS FILE_YN
+			FROM
+				DB_HOMEPAGE.HP_BOARD as hbd
+			WHERE
+				hbd.CONF_ID IN
+			<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+				#{obj.value}
+			</foreach>
+			AND
+				hbd.IS_TOP = 1
+			ORDER BY
+				hbd.BOARD_REG_DATE DESC,
+				hbd.BOARD_NUM DESC
+		)
+		UNION
+		(
+			SELECT
+				A.BOARD_NUM,
+				A.BOARD_TITLE,
+				DATE_FORMAT(A.BOARD_REG_DATE, '%Y-%m-%d') as BOARD_REG_DATE,
+				A.BOARD_VIEW,
+				A.IS_TOP,
+				A.FILE_YN
+			FROM (
+				SELECT
+					ROW_NUMBER() OVER (ORDER BY hbd.BOARD_REG_DATE DESC, hbd.BOARD_NUM DESC) AS ROWNUM,
+					hbd.BOARD_NUM,
+					hbd.BOARD_TITLE,
+					hbd.BOARD_REG_DATE,
+					hbd.BOARD_VIEW,
+					CASE WHEN hbd.IS_TOP = 1 THEN 'Y' ELSE 'N' END AS IS_TOP,
+					CASE WHEN (SELECT COUNT(*) FROM DB_HOMEPAGE.HP_FILES AS hfl WHERE hfl.BOARD_NUM = hbd.BOARD_NUM AND hfl.ORIGINAL_FILE_NAME not like '%:\%') = 0 THEN 'N' ELSE 'Y' END AS FILE_YN
+				FROM
+					DB_HOMEPAGE.HP_BOARD as hbd
+				WHERE
+					hbd.CONF_ID IN
+				<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+					#{obj.value}
+				</foreach>
+				AND
+					hbd.IS_TOP = 0
+				<if test="sc_type != null and sc_text != null">
+					<if test="sc_type == 'title'">
+						AND
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == 'content'">
+						AND
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == ''">
+						AND (
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							OR
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+						)
+					</if>
+				</if>
+				ORDER BY
+					hbd.BOARD_REG_DATE DESC,
+					hbd.BOARD_NUM DESC
+			) AS A
+			WHERE A.ROWNUM BETWEEN #{start_index} + 1 AND #{start_index} + #{page_size}
+			ORDER BY A.ROWNUM ASC
+		)
+		ORDER BY 
+			IS_TOP DESC, 
+			BOARD_REG_DATE DESC, 
+			BOARD_NUM DESC
+	</select>
+	
+	<!-- 게시물 조회수 증가 -->
+	<update id="boardReadCount" parameterType="map">
+		UPDATE
+			DB_HOMEPAGE.HP_BOARD AS hbd
+		SET 
+			hbd.BOARD_VIEW = hbd.BOARD_VIEW + 1
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		AND
+			hbd.BOARD_NUM = #{board_num}
+	</update>
+	
+	<!-- 게시물 불러오기 -->
+	<select id="boardDetail" parameterType="map" resultMap="boardClobMap">
+		SELECT
+			hbd.BOARD_NUM,
+			hbd.BOARD_TITLE,
+			DATE_FORMAT(hbd.BOARD_REG_DATE, '%Y-%m-%d') as BOARD_REG_DATE,
+			hbd.BOARD_VIEW,
+			hbd.BOARD_CONTENTS,
+			hbd.IS_TOP
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		AND
+			hbd.BOARD_NUM = #{board_num}
+	</select>
+	
+	<!-- 게시물 첨부파일 불러오기 -->
+	<select id="boardFileDetail" parameterType="map" resultType="hashmap">
+		SELECT
+			hfl.SEQ,
+			hfl.BOARD_NUM,
+			hfl.ORIGINAL_FILE_NAME
+		FROM
+			DB_HOMEPAGE.HP_FILES as hfl
+		WHERE
+			hfl.BOARD_NUM = #{board_num}
+		AND 
+			hfl.ORIGINAL_FILE_NAME not like '%:\%'
+		ORDER BY
+			hfl.REG_DATE ASC
+	</select>
+	
+	<!-- is_top = 1인 이전글 개수 -->
+	<select id="boardPrevCount" parameterType="map" resultType="Integer">
+		SELECT
+			COUNT(*) as count
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		AND
+			hbd.IS_TOP = 1
+		<![CDATA[
+		AND
+			hbd.BOARD_REG_DATE <= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+		AND
+			hbd.BOARD_NUM != #{board_num}
+		]]>
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- is_top = 0인 다음글 개수 -->
+	<select id="boardNextCount" parameterType="map" resultType="Integer">
+		SELECT
+			COUNT(*) as count
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		AND
+			hbd.IS_TOP = 0
+		<![CDATA[
+		AND
+			hbd.BOARD_REG_DATE >= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+		AND
+			hbd.BOARD_NUM != #{board_num}
+		]]>
+		<if test="sc_type != null and sc_text != null">
+			<if test="sc_type == 'title'">
+				AND
+					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+			</if>
+			
+			<if test="sc_type == 'content'">
+				AND
+					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+			</if>
+			
+			<if test="sc_type == ''">
+				AND (
+					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					OR
+					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+				)
+			</if>
+		</if>
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 이전글 불러오기 -->
+	<select id="boardPrev" parameterType="map" resultType="hashmap">
+		SELECT
+			hbd.BOARD_NUM, 
+			hbd.BOARD_TITLE
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		<if test="board_top == 1">
+			<!-- 1. top = 1이고 prev_count = 0인경우 -->
+			<if test="prev_count == 0">
+				AND
+					hbd.IS_TOP = 0
+				<if test="sc_type != null and sc_text != null">
+					<if test="sc_type == 'title'">
+						AND
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == 'content'">
+						AND
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == ''">
+						AND (
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							OR
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+						)
+					</if>
+				</if>
+			</if>
+			<!-- 2. top = 1이고 prev_count != 0인경우 -->
+			<if test="prev_count != 0">
+				AND
+					hbd.IS_TOP = 1
+				<![CDATA[
+				AND
+					hbd.BOARD_REG_DATE <= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+				AND
+					hbd.BOARD_NUM != #{board_num}
+				]]>
+			</if>
+		</if>
+		<!-- 3. top != 1인경우 -->
+		<if test="board_top != 1">
+			AND
+				hbd.IS_TOP = 0
+			<![CDATA[
+			AND
+				hbd.BOARD_REG_DATE <= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+			AND
+				hbd.BOARD_NUM != #{board_num}
+			]]>
+			<if test="sc_type != null and sc_text != null">
+				<if test="sc_type == 'title'">
+					AND
+						hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+				</if>
+				
+				<if test="sc_type == 'content'">
+					AND
+						hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+				</if>
+				
+				<if test="sc_type == ''">
+					AND (
+						hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+						OR
+						hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					)
+				</if>
+			</if>
+		</if>
+		ORDER BY
+			hbd.BOARD_REG_DATE DESC,
+			hbd.BOARD_NUM DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 다음글 불러오기 -->
+	<select id="boardNext" parameterType="map" resultType="hashmap">
+		SELECT
+			hbd.BOARD_NUM, 
+			hbd.BOARD_TITLE
+		FROM
+			DB_HOMEPAGE.HP_BOARD as hbd
+		WHERE
+			hbd.CONF_ID IN
+		<foreach collection="board_type" item="obj"  open="(" close=")" separator=",">
+			#{obj.value}
+		</foreach>
+		
+		<if test="board_top == 0">
+			<!-- 1. top = 0이고 next_count = 0인경우 -->
+			<if test="next_count == 0">
+				AND
+					hbd.IS_TOP = 1
+			</if>
+			<!-- 2. top = 0이고 next_count != 0인경우 -->
+			<if test="next_count != 0">
+				AND
+					hbd.IS_TOP = 0
+				<![CDATA[
+				AND
+					hbd.BOARD_REG_DATE >= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+				AND
+					hbd.BOARD_NUM != #{board_num}
+				]]>
+				<if test="sc_type != null and sc_text != null">
+					<if test="sc_type == 'title'">
+						AND
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == 'content'">
+						AND
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					</if>
+					
+					<if test="sc_type == ''">
+						AND (
+							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							OR
+							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+						)
+					</if>
+				</if>
+			</if>
+		</if>
+		<!-- 2. top != 0인경우 -->
+		<if test="board_top != 0">
+			AND
+				hbd.IS_TOP = 1
+			<![CDATA[
+			AND
+				hbd.BOARD_REG_DATE >= (SELECT hbd2.BOARD_REG_DATE FROM DB_HOMEPAGE.HP_BOARD AS hbd2 WHERE hbd2.BOARD_NUM = #{board_num})
+			AND
+				hbd.BOARD_NUM != #{board_num}
+			]]>
+		</if>
+		ORDER BY
+			hbd.BOARD_REG_DATE ASC,
+			hbd.BOARD_NUM ASC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 파일경로 불러오기 -->
+	<select id="boardFile" parameterType="map" resultType="hashmap">
+		SELECT 
+			hf.FILE_NAME, 
+			hf.ORIGINAL_FILE_NAME,
+			hpa.UPLOAD_PATH
+		FROM 
+			DB_HOMEPAGE.HP_FILES AS hf
+		LEFT OUTER JOIN 
+			DB_HOMEPAGE.HP_BOARD_ADMIN AS hpa
+		ON 
+			hf.CONF_ID = hpa.CONF_ID
+		WHERE 
+			hf.SEQ = #{num}
+	</select>
+	
+</mapper>
