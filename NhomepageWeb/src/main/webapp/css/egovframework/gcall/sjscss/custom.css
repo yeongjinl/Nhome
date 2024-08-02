@@ -1,0 +1,11 @@
+.btn .i{
+color:black;
+}
+.btn-codeview{
+display:none
+}
+.fileDrop {
+    width: 100%;
+    padding:30px;
+    border: 2px dotted #0b58a2;
+}

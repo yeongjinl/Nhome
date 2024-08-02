@@ -1,0 +1,68 @@
+@font-face{
+	font-family:'Nanum Barun Gothic';
+	font-style:normal;
+	font-weight:700;
+	src:url(/fonts/egovframework/gcall/main/NanumBarunGothic-Bold.eot);
+	src:url(/fonts/egovframework/gcall/main/NanumBarunGothic-Bold.eot?#iefix) format('embedded-opentype'),
+	url(/fonts/egovframework/gcall/main/NanumBarunGothic-Bold.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NanumBarunGothic-Bold.ttf) format('truetype')
+}
+	
+@font-face{
+	font-family:'Nanum Barun Gothic';
+	font-style:normal;
+	font-weight:400;
+	src:url(/fonts/egovframework/gcall/main/NanumBarunGothic-Regular.eot);
+	src:url(/fonts/egovframework/gcall/main/NanumBarunGothic-Regular.eot?#iefix) format('embedded-opentype'),
+	url(/fonts/egovframework/gcall/main/NanumBarunGothic-Regular.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NanumBarunGothic-Regular.ttf) format('truetype');
+}
+
+
+
+
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 400;
+	src: url(/fonts/egovframework/gcall/main/NotoSansKR-Regular.woff2) format('woff2'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Regular.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Regular.otf) format('opentype');
+}
+
+
+
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 500;
+	src: url(/fonts/egovframework/gcall/main/NotoSansKR-Medium.woff2) format('woff2'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Medium.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Medium.otf) format('opentype');
+}
+
+
+
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 700;
+	src: url(/fonts/egovframework/gcall/main/NotoSansKR-Bold.woff2) format('woff2'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Bold.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Bold.otf) format('opentype');
+}
+
+
+
+@font-face {
+	font-family: 'Noto Sans KR';
+	font-style: normal;
+	font-weight: 900;
+	src: url(/fonts/egovframework/gcall/main/NotoSansKR-Black.woff2) format('woff2'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Black.woff) format('woff'),
+	url(/fonts/egovframework/gcall/main/NotoSansKR-Black.otf) format('opentype');
+}
+	
+	
+	
+	
