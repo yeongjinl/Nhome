@@ -3,7 +3,7 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="DataDAO">
 
-	<!-- contact 불러오기 clob map -->
+	<!-- contact 불러오기 clob map  -->
 	<resultMap id="contactClobMap" type="HashMap">
 		<result property="DB_SEQ" 				column="DB_SEQ"/>
 		<result property="TITLE" 				column="TITLE"/>
