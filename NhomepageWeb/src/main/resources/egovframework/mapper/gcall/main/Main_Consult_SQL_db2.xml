@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ConsultDAO">
+
+	<!-- 휴일여부 가져오기 -->
+	<select id="selectHoliday" resultType="hashmap">
+		SELECT 
+			SCDL_ID,
+			SCDL_TITL,
+			SCDL_TYP_CD
+		FROM 
+			APP110.TB_SCDL_DTL
+		WHERE 
+			SUBSTR(SCDL_STT_DTTM, 1, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+		AND 
+			SCDL_TYP_CD = 'O'
+		ORDER BY 
+			SCDL_STT_DTTM DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+
+	<!-- 상담시간 가져오기 -->
+	<select id="selectBusiness" resultType="hashmap">
+		SELECT
+			SM.BEGINHR AS BEGIN_TIME,
+			SM.ENDHR AS END_TIME
+		FROM
+			APP.SIGNCNSLTMGT AS SM
+		WHERE
+			SM.OFDAY = TO_CHAR(SYSDATE, 'YYYYMMDD')
+		AND
+			SM.USE_YN = '01'
+		ORDER BY 
+			SM.SIGNMGT_NUM DESC
+		FETCH FIRST 1 ROWS ONLY
+	</select>
+	
+	<!-- 문자상담 insert -->
+	<insert id="insertSmsLog" parameterType="map">
+		INSERT INTO APP110.TB_CHAT_CONS(
+	    	MSG_SRNO, 
+	    	DACOM_RECP_DTTM, 
+	    	CLIENT_RECP_DTTM, 
+	    	RECP_NO, 
+	    	DPMS_NO, 
+	    	RECP_MSG, 
+	    	DACOM_SRNO, 
+	    	RPL_YN, 
+	    	PRGRMDDL_YN, 
+	    	RPL_DTTM, 
+	    	RPL_MSG,
+	    	CHAT_CHNL_CD
+		)
+	    VALUES(
+	    	FAX.MO_TRAN_SEQ.NEXTVAL,
+	    	TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+	    	TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+	    	'110',
+	    	#{tel},
+	    	#{contents},
+	    	0,
+	    	'0',
+	    	'0',
+	    	'',
+	    	'',
+	    	'2'
+	    )
+	</insert>
+	
+	<!-- 예약상담 insert -->
+	<insert id="insertReservationLog" parameterType="map">
+		INSERT INTO APP110.TB_CALB_DTL(                        
+			CNTR_CD, 
+			CALB_ID, 
+			RGSN_DTTM, 
+			CUST_NM, 
+			INCO_TLNO, 
+			CALB_RESR_TLNO, 
+			CALB_RESL_CD, 
+			RGSR_ID, 
+			AMND_ID, 
+			AMNT_DTTM, 
+			SIDO_TMCNT, 
+			ARS_SRVC_ADDR, 
+			CALB_PATH_CD, 
+			CUST_MEMO, 
+			RGSN_INTT_CD, 
+			CALB_HOPE_HR
+		)                                                
+		VALUES(                                          
+			'CCA',
+			APP.OM_CALLBACK_SEQ.NEXTVAL,
+			TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+			#{name},
+			#{tel},
+			#{tel},
+			0,
+			'ADMIN',
+			'ADMIN',
+			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+			0,
+			'CT01',
+			'20',
+			#{memo},
+			#{dept_cd},
+			#{time}
+		)
+	</insert>
+	
+</mapper>

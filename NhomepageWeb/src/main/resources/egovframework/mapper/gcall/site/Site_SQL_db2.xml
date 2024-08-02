@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SiteDAO">
+
+	<!-- 코드타입 -->
+	<select id="getCodeType" parameterType="map" resultType="map">
+		SELECT
+			ROWNUMBER() OVER(ORDER BY CODE_TYPE DESC) AS ROWNUM
+			,CODE_TYPE
+			,CODE_TYPE_NAME
+			,ETC
+		FROM
+			APP.HP_CODEBOOKTYPE
+		ORDER BY CODE_TYPE ASC
+	</select>
+
+	<!-- 코드북 -->
+	<select id="getCodeBook" parameterType="map" resultType="map">
+		SELECT
+			ROWNUMBER() OVER(ORDER BY CODE_ID DESC) AS ROWNUM
+			,CODE_TYPE
+			,CODE_ID
+			,CODE_NAME
+			,DECODE(A.USE_YN,'1','O','X') USE_YN
+			,PARENT_TYPE
+			,PARENT_ID
+			,ETC1
+			,ETC2
+			,ETC3
+			,A.USE_YN
+		FROM
+			APP.HP_CODEBOOK A
+		WHERE CODE_TYPE = #{CODE_TYPE}
+		AND DECODE(A.USE_YN,'1','O','X') LIKE '%' || #{USE_YN} || '%'
+		ORDER BY CODE_ID
+	</select>
+
+	<select id="getCodeBookNm" parameterType="map" resultType="String">
+		SELECT
+			CODE_NAME
+		FROM
+			APP.HP_CODEBOOK
+		WHERE CODE_TYPE = #{CODE_TYPE}
+	</select>
+	
+	<!-- 코드 타입 insert -->
+	<insert id="insertCodeType" parameterType="map">
+		INSERT INTO
+			APP.HP_CODEBOOKTYPE(
+				 CODE_TYPE
+				,CODE_TYPE_NAME
+				,ETC
+			)
+		VALUES (
+			  #{CODE_TYPE}
+			, #{CODE_TYPE_NAME}
+			, #{ETC}
+		)
+	</insert>
+
+	<!-- 코드 타입 수정 -->
+	<delete id="updateCodeType" parameterType="map">
+		UPDATE APP.HP_CODEBOOKTYPE
+	    SET
+	    	CODE_TYPE_NAME = #{CODE_TYPE_NAME}
+		   ,ETC = #{ETC}
+     	WHERE CODE_TYPE = #{CODE_TYPE}
+	</delete>
+
+	<!-- 코드 타입 삭제 -->
+	<delete id="deleteCodeType" parameterType="map" >
+		DELETE FROM APP.HP_CODEBOOKTYPE
+		WHERE CODE_TYPE = #{CODE_TYPE}
+
+	</delete>
+
+	<!-- 코드북 insert -->
+	<insert id="insertCodebook" parameterType="map">
+		INSERT INTO APP.HP_CODEBOOK(
+			 CODE_TYPE
+			,CODE_ID
+			,CODE_NAME
+			,PARENT_TYPE
+			,PARENT_ID
+			,ETC1
+			,ETC2
+			,ETC3
+			,USE_YN
+		)
+		VALUES (
+			 #{CODE_TYPE}
+			,#{CODE_ID}
+			,#{CODE_NAME}
+			,#{PARENT_TYPE}
+			,#{PARENT_ID}
+			,#{ETC1}
+			,#{ETC2}
+			,#{ETC3}
+			,#{USE_YN}
+		)
+	</insert>
+
+	<!-- 코드북 update -->
+	<update id="updateCodebook" parameterType="map">
+	UPDATE APP.HP_CODEBOOK
+			SET CODE_NAME 		= #{CODE_NAME}
+			    ,PARENT_TYPE 	= #{PARENT_TYPE}
+				,PARENT_ID 		= #{PARENT_ID}
+				,ETC1 			= #{ETC1}
+				,ETC2 			= #{ETC2}
+				,ETC3 			= #{ETC3}
+				,USE_YN 		= #{USE_YN}
+		    WHERE 	CODE_TYPE 	= #{CODE_TYPE}
+			AND 	CODE_ID 	= #{CODE_ID}
+	</update>
+
+
+</mapper>

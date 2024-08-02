@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AdminDAO">
+
+	<!-- 로그인 -->
+	<!-- APP110.DG_HASH 사용불가 -->
+	<select id="adminLoginYn" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+				USER_ID      
+				,USER_NAME
+				,PASSWORD
+				,USER_GRADE
+				,USER_TYPE
+				,EMAIL
+			FROM (
+			SELECT  
+			     USER_ID
+			    ,USER_NAME
+			    ,PASSWORD     
+			    ,USER_GRADE
+			    ,USER_TYPE
+			    ,EMAIL
+			FROM APP.HP_USER
+			UNION ALL
+            SELECT 
+                 LGN_ID USER_ID
+                ,USER_NM USER_NAME
+                ,PWD PASSWORD
+                ,RTNG_CD USER_GRADE
+                ,'1' USER_TYPE
+                ,EMIL_ADDR EMAIL
+            FROM APP110.TB_USER
+            WHERE RTNG_CD>'050'
+            AND USE_YN='Y'
+            ) a
+			WHERE 	USER_ID		= #{user_id}
+			AND 	PASSWORD	= #{password}
+			ORDER BY USER_GRADE DESC
+		]]>
+	</select>
+	
+	<!-- 탑메뉴가져오기 -->
+	<select id="commonMenuTopSelect" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT  
+			     MENU_ID
+			    ,MENU_NAME
+			    ,MENU_POP_YN
+			    ,MENU_POP_SIZE
+			    ,MENU_IMG
+			    ,(SELECT 
+			    	COUNT(*) 
+			      FROM APP.HP_MENU 
+			      WHERE PARENT_ID=A.MENU_ID) SIDE_MENU_YN
+			FROM APP.HP_MENU A
+			WHERE 	MENU_USE_YN	= '1'
+			AND		MENU_LEVEL	= '1'
+			AND 	MENU_GUBUN	= #{menu_gubun}
+			ORDER BY A.MENU_SORT
+		]]>
+	</select>
+	
+	<!-- 사이드,서브메뉴가져오기 -->
+	<select id="commonMenuSideSubSelect" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+                  A.MENU_ID
+			    , A.MENU_NAME
+                , A.MENU_TYPE
+			    , A.MENU_POP_YN
+			    , A.MENU_POP_SIZE
+			    , A.MENU_SORT
+			    , A.MODAL_YN
+                , A.PROCESS_ID
+                ,B.PROCESS_TYPE
+                ,B.PROCESS_URL
+                ,(CASE 	
+                  WHEN 
+                		A.MENU_TYPE=1 AND B.PROCESS_TYPE=2 
+                  THEN B.PROCESS_URL
+                  WHEN 
+                  		A.MENU_TYPE=1 AND B.PROCESS_TYPE=1 AND A.MENU_GUBUN=1 
+                  THEN '/admic.do#pi='||A.PROCESS_ID 
+                  WHEN 
+                  		A.MENU_TYPE=1 AND B.PROCESS_TYPE=1 AND A.MENU_GUBUN=0 
+                  THEN '/ic.do#pi='||A.PROCESS_ID 
+                  END) MENU_URL
+           FROM (
+                SELECT 
+			      MENU_ID
+			    , MENU_NAME
+                , MENU_TYPE
+			    , MENU_POP_YN
+			    , MENU_POP_SIZE
+			    , MENU_SORT
+			    , MODAL_YN
+                , PROCESS_ID
+                ,MENU_GUBUN
+			FROM (SELECT * FROM APP.HP_MENU WHERE MENU_GUBUN=#{MENU_GUBUN})
+			START WITH PARENT_ID=#{MENU_ID}
+			CONNECT BY PRIOR MENU_ID=PARENT_ID
+			--ORDER SIBLINGS BY MENU_SORT
+            ) A
+            LEFT JOIN HP_PROCESS B ON B.PROCESS_ID = A.PROCESS_ID
+            ORDER BY A.MENU_SORT WITH UR
+		]]>
+	</select>
+	
+	<!-- 방문자수 -->
+	<!-- TO_CHAR 및  TO_DATE 함수 사용 불가-->
+	<select id="statConnectCount" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
+			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
+			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			    ,CONNECT_TIME
+			    ,CONNECT_CNT
+			FROM APP.HP_STATS A
+			WHERE CONNECT_DATE BETWEEN REPLACE(#{start_date}, '-', '') AND REPLACE(#{end_date}, '-', '')
+			ORDER BY CONNECT_DATE DESC,CONNECT_TIME DESC
+		]]>
+	</select>
+	
+	<!-- 방문자수(일별) -->
+	<!-- TO_CHAR 및  TO_DATE 함수 사용 불가-->
+	<select id="statConnectCountSum" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
+			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
+			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			    ,SUM(CONNECT_CNT) CONNECT_CNT
+			FROM APP.HP_STATS A
+			WHERE CONNECT_DATE BETWEEN REPLACE(#{start_date}, '-', '') AND REPLACE(#{end_date}, '-', '')
+			GROUP BY CONNECT_DATE
+			ORDER BY CONNECT_DATE DESC
+		]]>
+	</select>
+	
+	<!-- 방문자수(월별) -->
+	<select id="statConnectMonthSum" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT 
+			     SUBSTR(CONNECT_DATE,1,4)||'-'||SUBSTR(CONNECT_DATE,5,2) CONNECT_DATE
+			    ,'.' YOIL
+			    ,SUM(CONNECT_CNT) CONNECT_CNT
+			FROM (
+				SELECT 
+				        SUBSTR(CONNECT_DATE,1,6) CONNECT_DATE
+				        ,CONNECT_CNT
+				FROM APP.HP_STATS
+				WHERE SUBSTR(CONNECT_DATE,1,6) BETWEEN REPLACE(#{start_date}, '-', '''') AND REPLACE(#{end_date}, '-', '')
+			) a
+			GROUP BY CONNECT_DATE
+			ORDER BY CONNECT_DATE DESC
+		]]>
+	</select>
+ 	
+</mapper>

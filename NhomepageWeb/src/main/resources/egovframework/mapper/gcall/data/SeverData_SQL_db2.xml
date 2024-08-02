@@ -1,0 +1,864 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SeverDataDAO">
+
+   <insert id="contactDbInsert"  parameterType="ContactDbDTO">
+      INSERT INTO APP.OM_CONTACT_DB
+         (
+             DB_SEQ
+            , TITLE
+            , QUST_CNTN
+            , CONTENT
+            , KEY_WORD
+            , REG_DATE
+            , REG_TIME
+            , REG_ID
+            , LST_UPDATE_DATE
+            , LST_UPDATE_TIME
+            , LST_UPDATE_ID
+            , FLAG
+            , PROVE_STATE
+            , CONTACT_DB_GUBUN
+            , RELATION_DEPT_NM
+            , RELATION_DEPT_TEL
+            , RELATION_DEPT_ADMIN
+            , CON1_CD
+            , CON2_CD
+            , CON3_CD
+            , CLASS1_CD
+            , CLASS2_CD
+            , CLASS3_CD
+            , UPDATE_CNT
+            , VIEW_CNT
+         )
+         VALUES
+         (
+            (SELECT NVL(MAX(DB_SEQ+1),0) FROM APP.OM_CONTACT_DB),
+            #{TITLE},
+            #{QUST_CNTN},
+            #{CONTENT},
+            #{KEY_WORD},
+            #{REG_DATE},
+            #{REG_TIME},
+            #{REG_ID},
+            #{LST_UPDATE_DATE},
+            #{LST_UPDATE_TIME},
+            #{LST_UPDATE_ID},
+            #{FLAG},
+            '0',
+            #{CONTACT_DB_GUBUN},
+            #{RELATION_DEPT_NM},
+            #{RELATION_DEPT_TEL},
+            #{RELATION_DEPT_ADMIN},
+            #{CON1_CD},
+            #{CON2_CD},
+            #{CON3_CD},
+            #{CLASS1_CD},
+            #{CLASS2_CD},
+            #{CLASS3_CD},
+            0,
+            0
+         )
+   </insert>
+   <!-- 지식 디비 시퀀스  -->
+   <select id="omContactDbSEQ" resultType="integer">
+   SELECT NVL(MAX(DB_SEQ),0) FROM APP.OM_CONTACT_DB
+   </select>
+   <resultMap type="ContactDbDTO" id="clobStringSelect">
+      <result property="RN" column="RN" />
+      <result property="DB_SEQ" column="DB_SEQ" />
+      <result property="TITLE" column="TITLE" />
+      <result property="CONTENT" column="CONTENT" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="FLAG_NAME" column="FLAG_NAME" />
+      <result property="LST_DAY" column="LST_DAY" />
+      <result property="UPDATE_CNT" column="UPDATE_CNT" />
+      <result property="CONTACT_DB_GUBUN_NAME" column="CONTACT_DB_GUBUN_NAME" />
+      <result property="USER_NM" column="USER_NM" />
+      <result property="UPDATE_NM" column="UPDATE_NM" />
+      <result property="POST_NAME" column="POST_NAME" />
+      <result property="REG_DAY" column="REG_DAY" />
+      <result property="FLAG" column="FLAG" />
+      <result property="LST_UPDATE_ID" column="LST_UPDATE_ID" />
+   </resultMap>
+
+   	<!-- 지식DB 구분 데이터 리스트 개수 -->
+	<select id="getProveViewCount" parameterType='ContactDbDTO' resultType="Integer">
+		SELECT COUNT(0)
+		FROM
+			APP.OM_CONTACT_DB A,
+		(
+			SELECT
+				USER_ID LGN_ID
+			FROM APP.HP_USER
+			UNION
+			SELECT
+				LGN_ID USER_ID
+			FROM APP110.TB_USER
+		) B
+		WHERE A.REG_ID =B.LGN_ID
+		AND A.PROVE_STATE      =#{PROVE_STATE}
+	    AND A.LST_UPDATE_DATE BETWEEN TO_CHAR(TO_DATE(#{tStartDate},'YYYY-MM-DD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(#{tEndDate},'YYYY-MM-DD'),'YYYYMMDD')
+		<if test="FLAG != '' ">
+			AND	A.FLAG LIKE '%' || #{FLAG} || '%'
+		</if>
+		<if test="CONTACT_DB_GUBUN != '' ">
+			AND	A.CONTACT_DB_GUBUN LIKE '%' || #{CONTACT_DB_GUBUN} || '%'
+		</if>
+		<if test="CON1_CD != '' ">
+			AND	A.CON1_CD LIKE '%' || #{CON1_CD} || '%'
+		</if>
+		<if test="CON2_CD != '' ">
+			AND	A.CON2_CD LIKE '%' ||#{CON2_CD} || '%'
+		</if>
+		<if test="CON3_CD != '' ">
+			AND	A.CON3_CD LIKE '%' || #{CON3_CD} || '%'
+		</if>
+		<if test="CLASS1_CD != '' ">
+			AND	A.CLASS1_CD LIKE '%' || #{CLASS1_CD} || '%'
+		</if>
+		<if test="CLASS2_CD != '' ">
+			AND	A.CLASS2_CD LIKE '%' || #{CLASS2_CD} || '%'
+		</if>
+		<if test="CLASS3_CD != '' ">
+			AND	A.CLASS3_CD LIKE '%' || #{CLASS3_CD} || '%'
+		</if>
+	</select>
+
+   <!-- 지식DB 구분 데이터 조회 test -->
+   <select id="getProveView" parameterType="ContactDbDTO" resultMap="clobStringSelect">
+      SELECT * FROM (
+         SELECT * FROM (
+            SELECT
+            	ROW_NUMBER() OVER(ORDER BY REG_DATE DESC, REG_TIME DESC) AS rn
+                ,DB_SEQ
+                ,TITLE
+                ,CONTENT
+                   ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD=A.FLAG) FLAG_NAME
+                   ,(
+                     CASE WHEN A.LST_UPDATE_DATE IS NOT NULL THEN
+                     TO_CHAR(TO_DATE(A.LST_UPDATE_DATE,'YYYY-MM-DD'),'YYYY-MM-DD')||' '||TO_CHAR(TO_DATE(A.LST_UPDATE_TIME,'HH24MISS'),'HH24:MI:SS')
+                     ELSE
+                     TO_CHAR(TO_DATE(A.REG_DATE,'YYYY-MM-DD'),'YYYY-MM-DD')||' '||TO_CHAR(TO_DATE(A.REG_TIME,'HH24MISS'),'HH24:MI:SS')
+                     END
+                    ) LST_DAY
+                ,UPDATE_CNT
+                ,(SELECT CODE_NAME FROM APP.OM_CODEBOOK WHERE CODE_TYPE='CONTACT_DB_GUBUN' AND CODE_ID=A.CONTACT_DB_GUBUN) CONTACT_DB_GUBUN_NAME
+                ,B.USER_NM   AS USER_NM
+                ,nvl((SELECT USER_NM FROM APP110.TB_USER WHERE LGN_ID=A.LST_UPDATE_ID),'') UPDATE_NM
+                ,nvl((SELECT TEAM_NM FROM APP110.TB_CONS_TEAM WHERE TEAM_CD=B.TEAM_CD),'') POST_NAME
+                ,TO_CHAR(TO_DATE(A.REG_DATE,'YYYY-MM-DD'),'YYYY-MM-DD')||' '||TO_CHAR(TO_DATE(A.REG_TIME,'HH24MISS'),'HH24:MI:SS') REG_DAY
+                ,A.FLAG AS FLAG
+                ,nvl(A.LST_UPDATE_ID,'') as LST_UPDATE_ID
+            FROM
+            	APP.OM_CONTACT_DB A,
+            	(
+					SELECT
+						USER_ID LGN_ID,
+						USER_NAME USER_NM,
+						USER_DEPT TEAM_CD
+					FROM APP.HP_USER
+					UNION
+					SELECT
+						LGN_ID,
+						USER_NM,
+						TEAM_CD
+					FROM APP110.TB_USER
+				) B
+               WHERE A.REG_ID         =B.LGN_ID
+               AND A.PROVE_STATE      =#{PROVE_STATE}
+			   AND A.LST_UPDATE_DATE BETWEEN TO_CHAR(TO_DATE(#{tStartDate},'YYYY-MM-DD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(#{tEndDate},'YYYY-MM-DD'),'YYYYMMDD')
+				<if test="FLAG != '' ">
+					AND	A.FLAG LIKE '%' || #{FLAG} || '%'
+				</if>
+				<if test="CONTACT_DB_GUBUN != '' ">
+					AND	A.CONTACT_DB_GUBUN LIKE '%' || #{CONTACT_DB_GUBUN} || '%'
+				</if>
+				<if test="CON1_CD != '' ">
+					AND	A.CON1_CD LIKE '%' || #{CON1_CD} || '%'
+				</if>
+				<if test="CON2_CD != '' ">
+					AND	A.CON2_CD LIKE '%' ||#{CON2_CD} || '%'
+				</if>
+				<if test="CON3_CD != '' ">
+					AND	A.CON3_CD LIKE '%' || #{CON3_CD} || '%'
+				</if>
+				<if test="CLASS1_CD != '' ">
+					AND	A.CLASS1_CD LIKE '%' || #{CLASS1_CD} || '%'
+				</if>
+				<if test="CLASS2_CD != '' ">
+					AND	A.CLASS2_CD LIKE '%' || #{CLASS2_CD} || '%'
+				</if>
+				<if test="CLASS3_CD != '' ">
+					AND	A.CLASS3_CD LIKE '%' || #{CLASS3_CD} || '%'
+				</if>
+            )
+      ) A
+      WHERE rn BETWEEN #{startlist} AND #{listsize}
+   </select>
+   <select id="getDbGubun" parameterType="ContactDbDTO" resultType="map">
+	WITH UR AS (
+		SELECT
+			 '' CODE_ID
+			,'전체' CODE_NAME
+			,DECODE(''||#{CODE_ID},'','1','0') SELECTED
+		FROM SYSIBM.SYSDUMMY1
+		UNION ALL
+	      SELECT
+	          CODE_ID
+	         ,CODE_NAME
+	         ,SELECTED
+		FROM (
+		   SELECT
+		       CODE_ID
+		      ,CODE_NAME
+		      ,DECODE(''||#{CODE_ID},CODE_ID,'1','0') SELECTED
+		   FROM APP.OM_CODEBOOK
+		   WHERE USE_YN ='1'
+		   AND CODE_TYPE=#{CODE_TYPE}
+		         ORDER BY CODE_ID
+		)
+	)
+	SELECT * FROM UR
+	ORDER BY CODE_ID
+   </select>
+   <select id="getClassGubunL"  parameterType="ContactDbDTO" resultType="map">
+	SELECT
+		 '' CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CLASS1_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CLASS1_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+		     CLASS1 	CODE_ID
+		    ,CLASS1_NM  CODE_NAME
+		FROM VOP110.OMV_NEW_DEPT A
+		GROUP BY CLASS1,CLASS1_NM
+		ORDER BY CLASS1
+	)
+	ORDER BY CODE_ID
+   </select>
+   <select id="getClassGubunM"  parameterType="ContactDbDTO" resultType="map">
+   SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CLASS2_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CLASS2_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+		     CLASS2 CODE_ID
+		    ,CLASS2_NM CODE_NAME
+		FROM VOP110.OMV_NEW_DEPT A
+		WHERE CLASS1	=#{CLASS1_CD}
+		GROUP BY CLASS2,CLASS2_NM
+		ORDER BY CLASS2
+	)
+	ORDER BY CODE_ID
+   </select>
+   <select id="getClassGubunS" parameterType="ContactDbDTO" resultType="map">
+   SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CLASS3_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CLASS3_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+		     DEPT_CD CODE_ID
+		    ,DEPT_NAME CODE_NAME
+		FROM VOP110.OMV_NEW_DEPT A
+		WHERE CLASS1=#{CLASS1_CD}
+		AND CLASS2	=#{CLASS2_CD}
+		GROUP BY DEPT_CD,DEPT_NAME
+		ORDER BY DEPT_CD
+	)
+	ORDER BY CODE_ID
+   </select>
+   <select id="getConGubunL" parameterType="ContactDbDTO" resultType="map">
+   	SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CON1_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CON1_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+			 BSWR_CLSF_CD CODE_ID
+        	,BSWR_CLSF_NM CODE_NAME
+		FROM APP110.TB_BSWR_CLSF_CD
+		WHERE USE_YN ='Y'
+		AND HGRN_BSWR_CLSF_CD = #{CODE_ID}
+		ORDER BY BSWR_CLSF_CD
+	)
+	ORDER BY CODE_ID
+   </select>
+   <select id="getConGubunM" parameterType="ContactDbDTO" resultType="map">
+   	SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CON2_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CON2_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+			 BSWR_CLSF_CD CODE_ID
+        	,BSWR_CLSF_NM CODE_NAME
+		FROM APP110.TB_BSWR_CLSF_CD
+		WHERE USE_YN ='Y'
+		AND HGRN_BSWR_CLSF_CD = #{CON1_CD}
+		ORDER BY BSWR_CLSF_CD
+	)
+	ORDER BY CODE_ID
+   </select>
+   <select id="getConGubunS" parameterType="ContactDbDTO" resultType="map">
+   SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{CON3_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+	SELECT
+		 CODE_ID
+		,CODE_NAME
+		,DECODE(CODE_ID,''||#{CON3_CD},'1','0') SELECTED
+	FROM (
+		SELECT
+			 BSWR_CLSF_CD CODE_ID
+        			,BSWR_CLSF_NM CODE_NAME
+		FROM APP110.TB_BSWR_CLSF_CD
+		WHERE USE_YN ='Y'
+		AND HGRN_BSWR_CLSF_CD = #{CON2_CD}
+		ORDER BY BSWR_CLSF_CD
+	)
+	ORDER BY CODE_ID
+   </select>
+
+   <!-- 업무구분 -->
+   <select id="getFlagGubun" parameterType="ContactDbDTO" resultType="map">
+   	SELECT
+		 '' 	CODE_ID
+		,'전체' 	CODE_NAME
+		,DECODE(''||#{POST_CD},'','1','0') SELECTED
+	FROM SYSIBM.SYSDUMMY1
+	UNION ALL
+   	SELECT
+		CODE_ID
+		,CODE_NAME
+	    ,FLAG
+	FROM (
+		SELECT
+			BSWR_CLSF_CD AS CODE_ID
+			,BSWR_CLSF_NM AS CODE_NAME
+			,BSWR_CLSF_LVL_CNT AS BSWR_CLSF_LVL_CNT
+			,(CASE WHEN #{POST_CD} LIKE 'TA0%' OR #{POST_CD} LIKE 'T20%' OR #{POST_CD} LIKE 'T3010%' OR #{POST_CD} LIKE 'T10%' THEN 'CT01000000'
+	            WHEN #{POST_CD} LIKE 'T3020%' THEN 'CT02000000'
+	            WHEN #{POST_CD} LIKE 'T3050%' THEN 'CT03000000'
+	            WHEN #{POST_CD} LIKE 'T40%' OR #{POST_CD} LIKE 'T3040%' THEN 'CT04000000'
+	            WHEN #{POST_CD} LIKE 'T50%' OR #{POST_CD} LIKE 'T3030%' THEN 'CT05000000'
+	          	ELSE 'CT01000000' END
+	          )AS FLAG
+		FROM APP110.TB_BSWR_CLSF_CD
+		WHERE USE_YN ='Y'
+	)
+	WHERE CODE_ID = FLAG
+	ORDER BY CODE_ID
+   </select>
+
+
+   <!-- 업무구분  admin -->
+   <select id="getAdminFlagGubun" parameterType="ContactDbDTO" resultType="map">
+   	SELECT *
+	FROM(
+		SELECT
+			 '' CODE_ID
+			,'전체' CODE_NAME
+			,DECODE(''||#{CODE_ID},'','1','0') SELECTED
+		FROM SYSIBM.SYSDUMMY1
+		UNION ALL
+		SELECT
+			 CODE_ID
+			,CODE_NAME
+			,DECODE(CODE_ID,''||#{CODE_ID},'1','0') SELECTED
+			FROM (
+			SELECT
+				BSWR_CLSF_CD AS CODE_ID
+         		,BSWR_CLSF_NM AS CODE_NAME
+     			,BSWR_CLSF_LVL_CNT
+			FROM APP110.TB_BSWR_CLSF_CD
+			WHERE USE_YN ='Y'
+			AND BSWR_CLSF_LVL_CNT = 1
+		)
+	)
+	WHERE 1 = 1
+	ORDER BY CODE_ID
+   </select>
+
+   <!-- 상세보기 -->
+   <resultMap type="ContactDbDTO" id="clobStringSelect2">
+      <result property="DB_SEQ" column="DB_SEQ" />
+      <result property="TITLE" column="TITLE" />
+      <result property="QUST_CNTN" column="QUST_CNTN" />
+      <result property="CONTENT" column="CONTENT" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="POST_NAME" column="POST_NAME" />
+      <result property="USER_NM" column="USER_NM" />
+      <result property="FLAG_NAME" column="FLAG_NAME" />
+      <result property="KEY_WORD" column="KEY_WORD" />
+      <result property="CONTACT_DB_GUBUN_NAME" column="CONTACT_DB_GUBUN_NAME" />
+      <result property="REG_DATE" column="REG_DATE" />
+      <result property="REG_TIME" column="REG_TIME" />
+      <result property="REG_ID" column="REG_ID" />
+      <result property="LST_UPDATE_DATE" column="LST_UPDATE_DATE" />
+      <result property="LST_UPDATE_TIME" column="LST_UPDATE_TIME" />
+      <result property="LST_UPDATE_ID" column="LST_UPDATE_ID" />
+      <result property="FLAG" column="FLAG" />
+      <result property="CLASS1_NM" column="CLASS1_NM" />
+      <result property="CLASS2_NM" column="CLASS2_NM" />
+      <result property="CLASS3_NM" column="CLASS3_NM" />
+      <result property="CON1_NM" column="CON1_NM" />
+      <result property="CON2_NM" column="CON2_NM" />
+      <result property="CON3_NM" column="CON3_NM" />
+      <result property="RELATION_DEPT_NM" column="RELATION_DEPT_NM" />
+      <result property="RELATION_DEPT_TEL" column="RELATION_DEPT_TEL" />
+      <result property="RELATION_DEPT_ADMIN" column="RELATION_DEPT_ADMIN" />
+      <result property="CON1_CD" column="CON1_CD" />
+      <result property="CON2_CD" column="CON2_CD" />
+      <result property="CON3_CD" column="CON3_CD" />
+      <result property="CLASS1_CD" column="CLASS1_CD" />
+      <result property="CLASS2_CD" column="CLASS2_CD" />
+      <result property="CLASS3_CD" column="CLASS3_CD" />
+      <result property="CONTACT_DB_GUBUN" column="CONTACT_DB_GUBUN" />
+      <result property="UPDATE_CNT" column="UPDATE_CNT" />
+      <result property="PROVE_STATE" column="PROVE_STATE" />
+   </resultMap>
+
+   <select id="getlistDetail" parameterType="ContactDbDTO" resultMap="clobStringSelect2">
+      SELECT
+           DB_SEQ
+          ,TITLE
+          ,QUST_CNTN
+          ,CONTENT
+          ,(SELECT TEAM_NM FROM APP110.TB_CONS_TEAM WHERE TEAM_CD=B.TEAM_CD) as POST_NAME
+          ,B.USER_NM as USER_NM
+          ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD=A.FLAG) as FLAG_NAME
+          ,KEY_WORD
+          ,(SELECT CODE_NAME FROM APP.OM_CODEBOOK WHERE CODE_TYPE='CONTACT_DB_GUBUN' AND CODE_ID=A.CONTACT_DB_GUBUN) as CONTACT_DB_GUBUN_NAME
+          ,REG_DATE
+          ,REG_TIME
+          ,REG_ID
+          ,LST_UPDATE_DATE
+          ,LST_UPDATE_TIME
+          ,LST_UPDATE_ID
+          ,A.FLAG as FLAG
+             ,C.CLASS1_NM as CLASS1_NM
+             ,C.CLASS2_NM as CLASS2_NM
+             ,C.DEPT_NAME as CLASS3_NM
+             ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON1_CD) as CON1_NM
+             ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON2_CD) as CON2_NM
+             ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON3_CD) as CON3_NM
+             ,A.RELATION_DEPT_NM as RELATION_DEPT_NM
+             ,A.RELATION_DEPT_TEL as RELATION_DEPT_TEL
+             ,A.RELATION_DEPT_ADMIN as RELATION_DEPT_ADMIN
+             ,A.CON1_CD as CON1_CD
+             ,A.CON2_CD as CON2_CD
+             ,A.CON3_CD as CON3_CD
+             ,A.CLASS1_CD as CLASS1_CD
+             ,A.CLASS2_CD as CLASS2_CD
+             ,A.CLASS3_CD as CLASS3_CD
+             ,A.CONTACT_DB_GUBUN as CONTACT_DB_GUBUN
+             ,A.UPDATE_CNT as UPDATE_CNT
+             ,A.PROVE_STATE as PROVE_STATE
+      FROM APP.OM_CONTACT_DB A,
+      (
+			SELECT
+				USER_ID LGN_ID,
+				USER_NAME USER_NM,
+				USER_DEPT TEAM_CD
+			FROM APP.HP_USER
+			UNION
+			SELECT
+				LGN_ID,
+				USER_NM,
+				TEAM_CD
+			FROM APP110.TB_USER
+		) B,
+      VOP110.OMV_NEW_DEPT C,APP110.TB_BSWR_CLSF_CD D
+          WHERE    A.DB_SEQ   =#{DB_SEQ}
+             AND    A.REG_ID   =B.LGN_ID
+             AND    A.CLASS1_CD   =C.CLASS1(+)
+             AND    A.CLASS2_CD   =C.CLASS2(+)
+             AND    A.CLASS3_CD   =C.DEPT_CD(+)
+             AND    A.CON1_CD   =D.BSWR_CLSF_CD(+)
+             AND    A.CON2_CD   =D.BSWR_CLSF_CD(+)
+             AND    A.CON3_CD   =D.BSWR_CLSF_CD(+)
+             AND    A.FLAG      =D.HGRN_BSWR_CLSF_CD(+)
+   </select>
+
+   <!-- 업무분류 대중소 팝업 -->
+   <select id="getpopupflag" parameterType="map" resultType="map" >
+	   SELECT
+			C.rn AS rn
+			,C.CON1_NM as CON1_NM
+			,C.CON2_NM as CON2_NM
+			,C.CON3_NM as CON3_NM
+			,C.CON1_CD as CON1_CD
+			,C.CON2_CD as CON2_CD
+			,C.CON3_CD as CON3_CD
+		FROM (
+			SELECT B.*
+		    FROM (
+		    	SELECT ROW_NUMBER() OVER(ORDER BY BSWR_CLSF3_CD DESC) AS rn,CONS_TYP2_NM as CON1_NM, CONS_TYP3_NM as CON2_NM, CONS_TYP4_NM as CON3_NM, BSWR_CLSF1_CD as CON1_CD, BSWR_CLSF2_CD as CON2_CD, BSWR_CLSF3_CD as CON3_CD, ASP_ORGZ_INFO_CD as FLAG
+		        FROM (
+		        	SELECT A.BSWR_CLSF_NM AS CONS_TYP1_NM
+		                 , RTRIM(B.BSWR_CLSF_NM) AS CONS_TYP2_NM
+		                 , RTRIM(C.BSWR_CLSF_NM) AS CONS_TYP3_NM
+		                 , RTRIM(D.BSWR_CLSF_NM) AS CONS_TYP4_NM
+		                 , A.BSWR_CLSF_SQNC
+		                 , A.BSWR_CLSF_CD AS ASP_ORGZ_INFO_CD, B.BSWR_CLSF_CD AS BSWR_CLSF1_CD, C.BSWR_CLSF_CD AS BSWR_CLSF2_CD, D.BSWR_CLSF_CD AS BSWR_CLSF3_CD
+		                 , RTRIM(B.BSWR_CLSF_NM) || ' ' || RTRIM(C.BSWR_CLSF_NM) || ' ' || RTRIM(D.BSWR_CLSF_NM) AS KEY_STR
+		  			FROM APP110.TB_BSWR_CLSF_CD A
+		         		, APP110.TB_BSWR_CLSF_CD B
+		         		, APP110.TB_BSWR_CLSF_CD C
+		         		, APP110.TB_BSWR_CLSF_CD D
+		  			WHERE A.BSWR_CLSF_CD = B.HGRN_BSWR_CLSF_CD
+		         	AND B.BSWR_CLSF_CD = C.HGRN_BSWR_CLSF_CD
+		        	AND C.BSWR_CLSF_CD = D.HGRN_BSWR_CLSF_CD
+		         	AND ((A.BSWR_CLSF_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+		 			OR (B.BSWR_CLSF_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+		 			OR (C.BSWR_CLSF_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+					OR (D.BSWR_CLSF_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%'))
+		       ) A
+			WHERE 1=1
+			AND ((CONS_TYP2_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+			OR (CONS_TYP3_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+			OR (CONS_TYP4_NM LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%')
+			OR (KEY_STR LIKE '%' || REPLACE(#{popupWord},' ','%')  || '%'))
+			AND ASP_ORGZ_INFO_CD =#{flag}
+			) B
+		) C
+		ORDER BY rn desc
+   </select>
+
+   <!-- 기관분류 대중소 팝업 -->
+  <select id="getpopupclass" parameterType="map" resultType="map" >
+	SELECT *
+	FROM (
+		SELECT
+	     	 ROW_NUMBER() OVER(ORDER BY CLASS1 DESC ,CLASS2 DESC,DEPT_CD DESC) AS rn
+	         ,CLASS1_NM as CLASS1_NM
+	         ,CLASS2_NM as CLASS2_NM
+	         ,DEPT_NAME as CLASS3_NM
+	         ,CLASS1 as CLASS1_CD
+	         ,CLASS2 as CLASS2_CD
+	         ,DEPT_CD as CLASS3_CD
+	     FROM VOP110.OMV_NEW_DEPT
+	     WHERE DEPT_NAME LIKE '%'||#{popupClassWord}||'%'
+	)
+	ORDER BY rn DESC
+   </select>
+
+<!-- 네이버 연계 -->
+<!-- prove_status 변경해주기 -->
+   <update id="insertNaverProve" parameterType="ContactDbDTO">
+      UPDATE APP.OM_CONTACT_DB
+         SET PROVE_STATE=#{PROVE_STATE}
+         WHERE DB_SEQ=#{DB_SEQ}
+   </update>
+
+   <!-- 이력리스트 카운트 -->
+   <select id="getHislistCount" parameterType="ContactDbDTO" resultType="Integer">
+      SELECT COUNT(0)
+      FROM APP.OM_CONTACT_DB_HIS
+      WHERE PARENT_DB_SEQ=#{PARENT_DB_SEQ}
+   </select>
+   <!-- 이력리스트 -->
+   <select id="getHislist" parameterType="ContactDbDTO" resultType="map">
+   	SELECT * FROM (
+	      SELECT
+	  		ROW_NUMBER() OVER(ORDER BY DB_HIS_SEQ DESC) AS rn
+			,A.DB_HIS_SEQ as DB_HIS_SEQ
+	        ,TO_CHAR(TO_DATE(A.LST_UPDATE_DATE,'YYYY-MM-DD'),'YYYY-MM-DD')||' '||TO_CHAR(TO_DATE(A.LST_UPDATE_TIME,'HH24MISS'),'HH24:MI:SS') as LST_DAY
+	        ,A.UPDATE_MEMO as UPDATE_MEMO
+	        ,nvl((SELECT USER_NM FROM APP110.TB_USER WHERE LGN_ID=A.LST_UPDATE_ID),'') as UPDATE_NM
+	        ,(SELECT CODE_NAME FROM APP.OM_CODEBOOK WHERE CODE_TYPE='PROVE_STATE' AND CODE_ID=A.PROVE_STATE) as PROVE_STATE
+	        ,nvl(A.LST_UPDATE_ID,'') as LST_UPDATE_ID
+	      FROM APP.OM_CONTACT_DB_HIS A
+	      WHERE PARENT_DB_SEQ=#{PARENT_DB_SEQ}
+	      ORDER BY DB_HIS_SEQ DESC
+      )
+      WHERE rn BETWEEN #{startlist} AND #{listsize}
+   </select>
+
+   <!-- 이력 상세 -->
+   <resultMap type="ContactDbDTO" id="hisdetailResult">
+      <result property="DB_HIS_SEQ" column="DB_HIS_SEQ" />
+      <result property="TITLE" column="TITLE" />
+      <result property="QUST_CNTN" column="QUST_CNTN" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="CONTENT" column="CONTENT" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="POST_NAME" column="POST_NAME" />
+      <result property="USER_NM" column="USER_NM" />
+      <result property="FLAG_NAME" column="FLAG_NAME" />
+      <result property="KEY_WORD" column="KEY_WORD" />
+      <result property="CONTACT_DB_GUBUN_NAME" column="CONTACT_DB_GUBUN_NAME" />
+      <result property="REG_DATE" column="REG_DATE" />
+      <result property="REG_TIME" column="REG_TIME" />
+      <result property="REG_ID" column="REG_ID" />
+      <result property="LST_UPDATE_DATE" column="LST_UPDATE_DATE" />
+      <result property="LST_UPDATE_TIME" column="LST_UPDATE_TIME" />
+      <result property="LST_UPDATE_ID" column="LST_UPDATE_ID" />
+      <result property="FLAG" column="FLAG" />
+      <result property="CLASS1_NM" column="CLASS1_NM" />
+      <result property="CLASS2_NM" column="CLASS2_NM" />
+      <result property="CLASS3_NM" column="CLASS3_NM" />
+      <result property="CON1_NM" column="CON1_NM" />
+      <result property="CON2_NM" column="CON2_NM" />
+      <result property="CON3_NM" column="CON3_NM" />
+      <result property="RELATION_DEPT_NM" column="RELATION_DEPT_NM" />
+      <result property="RELATION_DEPT_TEL" column="RELATION_DEPT_TEL" />
+      <result property="RELATION_DEPT_ADMIN" column="RELATION_DEPT_ADMIN" />
+      <result property="CON1_CD" column="CON1_CD" />
+      <result property="CON2_CD" column="CON2_CD" />
+      <result property="CON3_CD" column="CON3_CD" />
+      <result property="CLASS1_CD" column="CLASS1_CD" />
+      <result property="CLASS2_CD" column="CLASS2_CD" />
+      <result property="CLASS3_CD" column="CLASS3_CD" />
+      <result property="CONTACT_DB_GUBUN" column="CONTACT_DB_GUBUN" />
+   </resultMap>
+   <select id="getHisDetail" parameterType="ContactDbDTO" resultMap="hisdetailResult">
+      SELECT
+           DB_HIS_SEQ as DB_HIS_SEQ
+          ,TITLE as TITLE
+          ,QUST_CNTN as QUST_CNTN
+          ,CONTENT as CONTENT
+            ,(SELECT TEAM_NM FROM APP110.TB_CONS_TEAM WHERE TEAM_CD=B.TEAM_CD) as POST_NAME
+          ,B.USER_NM as USER_NM
+            ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD=A.FLAG) as FLAG_NAME
+            ,KEY_WORD as KEY_WORD
+          ,(SELECT CODE_NAME FROM APP.OM_CODEBOOK WHERE CODE_TYPE='CONTACT_DB_GUBUN' AND CODE_ID=A.CONTACT_DB_GUBUN) as CONTACT_DB_GUBUN_NAME
+          ,REG_DATE
+          ,REG_TIME
+          ,REG_ID
+          ,LST_UPDATE_DATE
+          ,LST_UPDATE_TIME
+          ,LST_UPDATE_ID
+          ,A.FLAG as FLAG
+            ,C.CLASS1_NM as CLASS1_NM
+            ,C.CLASS2_NM as CLASS2_NM
+            ,C.DEPT_NAME as CLASS3_NM
+            ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON1_CD) as CON1_NM
+            ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON2_CD) as CON2_NM
+             ,(SELECT BSWR_CLSF_NM FROM APP110.TB_BSWR_CLSF_CD WHERE BSWR_CLSF_CD = A.CON3_CD) as CON3_NM
+            ,A.RELATION_DEPT_NM as RELATION_DEPT_NM
+            ,A.RELATION_DEPT_TEL as RELATION_DEPT_TEL
+            ,A.RELATION_DEPT_ADMIN as RELATION_DEPT_ADMIN
+            ,A.CON1_CD as CON1_CD
+            ,A.CON2_CD as CON2_CD
+            ,A.CON3_CD as CON3_CD
+            ,A.CLASS1_CD as CLASS1_CD
+            ,A.CLASS2_CD as CLASS2_CD
+            ,A.CLASS3_CD as CLASS3_CD
+            ,A.CONTACT_DB_GUBUN as CONTACT_DB_GUBUN
+      FROM APP.OM_CONTACT_DB_HIS A,
+      (
+			SELECT
+				USER_ID LGN_ID,
+				USER_NAME USER_NM,
+				USER_DEPT TEAM_CD
+			FROM APP.HP_USER
+			UNION
+			SELECT
+				LGN_ID,
+				USER_NM,
+				TEAM_CD
+			FROM APP110.TB_USER
+		) B,
+      VOP110.OMV_NEW_DEPT C,APP110.TB_BSWR_CLSF_CD D
+        WHERE
+           A.DB_HIS_SEQ= #{DB_HIS_SEQ}
+              AND A.REG_ID=B.LGN_ID
+              AND A.CLASS1_CD=C.CLASS1(+)
+              AND A.CLASS2_CD=C.CLASS2(+)
+              AND A.CLASS3_CD=C.DEPT_CD(+)
+              AND A.CON1_CD=D.BSWR_CLSF_CD(+)
+              AND A.CON2_CD=D.BSWR_CLSF_CD(+)
+              AND A.CON3_CD=D.BSWR_CLSF_CD(+)
+              AND A.FLAG=D.HGRN_BSWR_CLSF_CD(+)
+   </select>
+
+	<!-- 지식DB 수정 -->
+   <update id="updateProc" parameterType="ContactDbDTO">
+   		UPDATE APP.OM_CONTACT_DB
+			SET  TITLE				=#{TITLE}
+				,QUST_CNTN          =#{QUST_CNTN}
+				,CONTENT			=#{CONTENT}
+				,KEY_WORD			=#{KEY_WORD}
+				,LST_UPDATE_DATE	=TO_CHAR(SYSDATE,'YYYYMMDD')
+			   	,LST_UPDATE_TIME	=TO_CHAR(SYSDATE,'HH24MISS')
+			   	,LST_UPDATE_ID		=#{REG_ID}
+			   	,FLAG				=#{FLAG}
+			   	,CONTACT_DB_GUBUN	=#{CONTACT_DB_GUBUN}
+			   	,RELATION_DEPT_NM	=#{RELATION_DEPT_NM}
+			   	,RELATION_DEPT_TEL	=#{RELATION_DEPT_TEL}
+			   	,RELATION_DEPT_ADMIN=#{RELATION_DEPT_ADMIN}
+			   	,CON1_CD			=#{CON1_CD}
+			   	,CON2_CD			=#{CON2_CD}
+			   	,CON3_CD			=#{CON3_CD}
+			   	,CLASS1_CD			=#{CLASS1_CD}
+			   	,CLASS2_CD			=#{CLASS2_CD}
+			   	,CLASS3_CD			=#{CLASS3_CD}
+				,UPDATE_CNT			=UPDATE_CNT+1
+				,LST_UPDATE_MEMO	=#{UPDATE_MEMO}
+				,PROVE_STATE		='0'
+			WHERE DB_SEQ=#{DB_SEQ}
+   </update>
+
+   <!-- 히스토리 이력 insert -->
+   <insert id="insertHis" parameterType="ContactDbDTO">
+   INSERT INTO APP.OM_CONTACT_DB_HIS
+		SELECT
+		      (SELECT NVL(MAX(DB_HIS_SEQ+1),0) FROM APP.OM_CONTACT_DB_HIS)
+		    ,DB_SEQ
+		    ,TITLE
+		    ,CONTENT
+		    ,KEY_WORD
+		    ,REG_DATE
+		    ,REG_TIME
+		    ,REG_ID
+		    ,LST_UPDATE_DATE
+		    ,LST_UPDATE_TIME
+		    ,LST_UPDATE_ID
+		    ,FLAG
+		    ,PROVE_STATE
+		    ,CONTACT_DB_GUBUN
+		    ,RELATION_DEPT_NM
+		    ,RELATION_DEPT_TEL
+		    ,RELATION_DEPT_ADMIN
+		    ,CON1_CD
+		    ,CON2_CD
+		    ,CON3_CD
+		    ,CLASS1_CD
+		    ,CLASS2_CD
+		    ,CLASS3_CD
+		    ,#{UPDATE_MEMO} UPDATE_MEMO
+		    , QUST_CNTN
+		FROM APP.OM_CONTACT_DB
+		WHERE DB_SEQ=#{DB_SEQ}
+
+   </insert>
+   <!-- 뷰카운트 -->
+   <update id="detailViewCount" parameterType="ContactDbDTO">
+   	UPDATE APP.OM_CONTACT_DB
+    SET VIEW_CNT=nvl(VIEW_CNT,0)+1
+    WHERE DB_SEQ=#{DB_SEQ}
+   </update>
+   <!--  sc_files 디비  등록 -->
+   <insert id="fileUploadDB" parameterType="map">
+   INSERT
+   	INTO
+   		APP.SC_FILES
+		(
+			SEQ,
+			CONF_ID,
+			PARENT_SEQ,
+			FILE_NAME,
+			FILE_TYPE,
+			USE_YN,
+			ORIGINAL_FILE_NAME,
+			REAL_PATH,
+			TEMP_ID,
+			REG_DATE,
+			FILE_SORT
+		)
+	VALUES
+	(
+		(SELECT NVL(MAX(SEQ+1),0) FROM APP.SC_FILES),
+		 #{CONF_ID},
+		 #{PARENT_SEQ},
+		 #{FILE_NAME},
+		 '1',
+		 '1',
+		 #{ORIGINAL_FILE_NAME},
+		 #{REAL_PATH},
+		 '',
+		 SYSDATE,
+		 '1'
+	)
+
+   </insert>
+   <!-- sc files 상세	보기   파일리스트 -->
+   <select id="getOmDbFileList" parameterType="string" resultType="map">
+      SELECT
+        SEQ,
+        CONF_ID,
+        PARENT_SEQ,
+        FILE_NAME,
+        FILE_TYPE,
+        USE_YN,
+        ORIGINAL_FILE_NAME,
+        REAL_PATH,
+        TEMP_ID,
+        REG_DATE,
+        FILE_SORT
+      FROM
+         APP.SC_FILES
+      WHERE
+         PARENT_SEQ = #{db_seq}
+   </select>
+   <delete id="deleteFile" parameterType="string">
+   DELETE
+   FROM
+   		APP.SC_FILES
+   WHERE
+   		PARENT_SEQ  = #{db_seq}
+   </delete>
+   	<insert id="scFileUploadDB" parameterType="map">
+	INSERT INTO APP.SC_FILES
+	(SEQ,
+	 CONF_ID,
+	 PARENT_SEQ,
+	 FILE_NAME,
+	 FILE_TYPE,
+	 USE_YN,
+	 ORIGINAL_FILE_NAME,
+	 REAL_PATH,
+	 TEMP_ID,
+	 REG_DATE,
+	  FILE_SORT)
+	VALUES(
+	(SELECT NVL(MAX(SEQ+1),0) FROM APP.SC_FILES),
+	#{CONF_ID},
+	#{PARENT_SEQ},
+	#{FILE_NAME},
+	'3',
+	'1',
+	#{ORIGINAL_FILE_NAME},
+	#{REAL_PATH},
+	'',
+	SYSDATE,
+	1
+	)
+
+	</insert>
+
+</mapper>

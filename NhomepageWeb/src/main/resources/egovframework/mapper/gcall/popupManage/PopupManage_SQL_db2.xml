@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PopupDAO">
+
+	<!-- 기존 쿼리
+	SELECT
+			A.ALARM_ID,
+			A.ALARM_TITLE,
+			A.ALARM_TYPE,
+			A.ALARM_LINK_URL,
+			A.ALARM_REG_DATE,
+			A.ALARM_SORT,
+			A.ALARM_USE,
+			A.ALARM_TARGET,
+			A.REG_ID,
+			A.ALARM_REAL_PATH,
+			A.ALARM_ORIGINAL_NAME,
+			A.ALARM_CONTENT,
+			A.ALARM_POSITION,
+			A.ALARM_START_DATE,
+			A.ALARM_END_DATE,
+			B.USER_NAME
+		FROM APP.HP_ALARM A,
+			(SELECT USER_ID,USER_NAME
+			FROM (
+				SELECT USER_ID,USER_NAME
+				FROM APP.HP_USER
+				UNION ALL
+				SELECT USER_ID,USER_NM
+				FROM APP110.TB_USER
+				WHERE USER_ID!='admin'
+			)) B
+		WHERE ALARM_USE LIKE '%' || #{ALARM_USE} || '%'
+		AND ALARM_TYPE = #{ALARM_TYPE}
+		ORDER BY ALARM_ID DESC, ALARM_SORT DESC
+	-->
+
+	<!-- 변경된 쿼리 B를 leftouterjoin으로 변경 / A.REG_ID = B.USER_ID 기준 -->
+	<select id="popupList" parameterType='map' resultType="hashmap">
+		SELECT
+			A.ALARM_ID,
+			A.ALARM_TITLE,
+			A.ALARM_TYPE,
+			A.ALARM_LINK_URL,
+			A.ALARM_REG_DATE,
+			A.ALARM_SORT,
+			A.ALARM_USE,
+			A.ALARM_TARGET,
+			A.REG_ID,
+			A.ALARM_REAL_PATH,
+			A.ALARM_ORIGINAL_NAME,
+			A.ALARM_CONTENT,
+			A.ALARM_POSITION,
+			A.ALARM_START_DATE,
+			A.ALARM_END_DATE,
+			B.USER_NAME
+		FROM
+			APP.HP_ALARM A
+		LEFT OUTER JOIN
+			(
+				SELECT
+					USER_ID,
+					USER_NAME
+				FROM (
+					SELECT
+						USER_ID,
+						USER_NAME
+					FROM
+						APP.HP_USER
+					UNION ALL
+					SELECT
+						USER_ID,
+						USER_NM
+					FROM
+						APP110.TB_USER
+					WHERE
+						USER_ID!='admin'
+				)
+			) B
+		ON
+			A.REG_ID = B.USER_ID
+		WHERE
+			ALARM_USE LIKE '%' || #{ALARM_USE} || '%'
+		AND
+			ALARM_TYPE = #{ALARM_TYPE}
+		ORDER BY
+			ALARM_ID DESC,
+			ALARM_SORT DESC
+	</select>
+
+	<insert id="popupinsert" parameterType='Map'>
+	<![CDATA[
+ 		INSERT INTO APP.HP_ALARM (
+			ALARM_ID,
+			ALARM_TITLE,
+			ALARM_TYPE,
+			ALARM_LINK_URL,
+			ALARM_REG_DATE,
+			ALARM_SORT,
+			ALARM_USE,
+			ALARM_TARGET,
+			REG_ID,
+			ALARM_REAL_PATH,
+			ALARM_ORIGINAL_NAME,
+			ALARM_CONTENT,
+			ALARM_POSITION,
+			ALARM_START_DATE,
+			ALARM_END_DATE
+		)
+		VALUES (
+			(SELECT NVL(MAX(ALARM_ID),0)+1 FROM APP.HP_ALARM),
+			#{ALARM_TITLE},
+			#{ALARM_TYPE},
+			#{ALARM_LINK_URL},
+			#{ALARM_REG_DATE},
+			(SELECT NVL(MAX(ALARM_SORT),0)+1 FROM APP.HP_ALARM WHERE ALARM_TYPE=#{ALARM_TYPE}),
+			#{ALARM_USE},
+			#{ALARM_TARGET},
+			#{REG_ID},
+			#{ALARM_REAL_PATH},
+			#{ALARM_ORIGINAL_NAME},
+			#{ALARM_CONTENT},
+			#{ALARM_POSITION},
+			#{ALARM_START_DATE},
+			#{ALARM_END_DATE}
+		)
+	]]>
+	</insert>
+	<update id='popupupdate' parameterType='map'>
+ 		UPDATE APP.HP_ALARM
+ 		SET	ALARM_TITLE = #{ALARM_TITLE},
+			ALARM_USE = #{ALARM_USE},
+			ALARM_CONTENT = #{ALARM_CONTENT},
+			ALARM_POSITION = #{ALARM_POSITION}
+		<if test="ALARM_TYPE!=3">
+			,ALARM_LINK_URL = #{ALARM_LINK_URL}
+			,ALARM_TARGET = #{ALARM_TARGET}
+			,ALARM_START_DATE = #{ALARM_START_DATE}
+			,ALARM_END_DATE = #{ALARM_END_DATE}
+			,ALARM_REAL_PATH = #{ALARM_REAL_PATH}
+			,ALARM_ORIGINAL_NAME = #{ALARM_ORIGINAL_NAME}
+		</if>
+		WHERE ALARM_ID = #{ALARM_ID}
+	</update>
+	<select id="popupDetail" parameterType='int' resultType='hashmap'>
+		SELECT
+			nvl(ALARM_ID,'') ALARM_ID,
+			nvl(ALARM_TITLE,'') ALARM_TITLE,
+			nvl(ALARM_TYPE,'') ALARM_TYPE,
+			nvl(ALARM_LINK_URL,'') ALARM_LINK_URL,
+			nvl(ALARM_REG_DATE,'') ALARM_REG_DATE,
+			nvl(ALARM_SORT,'') ALARM_SORT,
+			nvl(ALARM_USE,'') ALARM_USE,
+			nvl(ALARM_TARGET,'') ALARM_TARGET,
+			nvl(REG_ID,'') REG_ID,
+			nvl(ALARM_REAL_PATH,'') ALARM_REAL_PATH,
+			nvl(ALARM_ORIGINAL_NAME,'') ALARM_ORIGINAL_NAME,
+			nvl(ALARM_CONTENT,'') ALARM_CONTENT,
+			nvl(ALARM_POSITION,'') ALARM_POSITION,
+			nvl(ALARM_START_DATE,'00000000') ALARM_START_DATE,
+			nvl(ALARM_END_DATE,'00000000') ALARM_END_DATE
+		FROM APP.HP_ALARM
+		WHERE ALARM_ID = #{ALARM_ID}
+	</select>
+</mapper>
