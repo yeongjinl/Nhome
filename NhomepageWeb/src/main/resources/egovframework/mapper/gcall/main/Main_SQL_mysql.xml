@@ -331,7 +331,7 @@
 		AND
 			hbd.BOARD_NUM != #{board_num}
 		]]>
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 	
 	<!-- is_top = 0인 다음글 개수 -->
@@ -372,7 +372,7 @@
 				)
 			</if>
 		</if>
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 	
 	<!-- 이전글 불러오기 -->
@@ -457,7 +457,7 @@
 		ORDER BY
 			hbd.BOARD_REG_DATE DESC,
 			hbd.BOARD_NUM DESC
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 	
 	<!-- 다음글 불러오기 -->
@@ -524,7 +524,7 @@
 		ORDER BY
 			hbd.BOARD_REG_DATE ASC,
 			hbd.BOARD_NUM ASC
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 	
 	<!-- 파일경로 불러오기 -->
