@@ -10,14 +10,14 @@
 			SCDL_TITL,
 			SCDL_TYP_CD
 		FROM 
-			APP110.TB_SCDL_DTL
+			DB_HOMEPAGE.TB_SCDL_DTL
 		WHERE 
-			SUBSTR(SCDL_STT_DTTM, 1, 8) = TO_CHAR(SYSDATE, 'YYYYMMDD')
+			SUBSTR(SCDL_STT_DTTM, 1, 8) = DATE_FORMAT(NOW(), '%Y%m%d')
 		AND 
 			SCDL_TYP_CD = 'O'
 		ORDER BY 
 			SCDL_STT_DTTM DESC
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 
 	<!-- 상담시간 가져오기 -->
@@ -26,19 +26,19 @@
 			SM.BEGINHR AS BEGIN_TIME,
 			SM.ENDHR AS END_TIME
 		FROM
-			APP.SIGNCNSLTMGT AS SM
+			DB_HOMEPAGE.SIGNCNSLTMGT AS SM
 		WHERE
-			SM.OFDAY = TO_CHAR(SYSDATE, 'YYYYMMDD')
+			SM.OFDAY = DATE_FORMAT(NOW(), '%Y%m%d')
 		AND
 			SM.USE_YN = '01'
 		ORDER BY 
 			SM.SIGNMGT_NUM DESC
-		FETCH FIRST 1 ROWS ONLY
+		LIMIT 1
 	</select>
 	
 	<!-- 문자상담 insert -->
 	<insert id="insertSmsLog" parameterType="map">
-		INSERT INTO APP110.TB_CHAT_CONS(
+		INSERT INTO DB_HOMEPAGE.TB_CHAT_CONS(
 	    	MSG_SRNO, 
 	    	DACOM_RECP_DTTM, 
 	    	CLIENT_RECP_DTTM, 
@@ -53,9 +53,9 @@
 	    	CHAT_CHNL_CD
 		)
 	    VALUES(
-	    	FAX.MO_TRAN_SEQ.NEXTVAL,
-	    	TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
-	    	TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+	    	(SELECT IFNULL(MAX(tcc.MSG_SRNO),0)+1 FROM DB_HOMEPAGE.TB_CHAT_CONS as tcc),
+	    	DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+	    	DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
 	    	'110',
 	    	#{tel},
 	    	#{contents},
@@ -70,7 +70,7 @@
 	
 	<!-- 예약상담 insert -->
 	<insert id="insertReservationLog" parameterType="map">
-		INSERT INTO APP110.TB_CALB_DTL(                        
+		INSERT INTO DB_HOMEPAGE.TB_CALB_DTL(                        
 			CNTR_CD, 
 			CALB_ID, 
 			RGSN_DTTM, 
@@ -91,14 +91,14 @@
 		VALUES(                                          
 			'CCA',
 			APP.OM_CALLBACK_SEQ.NEXTVAL,
-			TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS'),
+			DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
 			#{name},
 			#{tel},
 			#{tel},
 			0,
 			'ADMIN',
 			'ADMIN',
-			TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS'),
+			DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
 			0,
 			'CT01',
 			'20',
