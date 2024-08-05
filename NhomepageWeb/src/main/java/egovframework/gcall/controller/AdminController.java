@@ -324,7 +324,9 @@ public class AdminController {
 				try {
 					map.clear();
 					map.put("USER_ID", request.getParameter("id"));
-					map.put("PASSWORD", request.getParameter("pw"));
+					//map.put("PASSWORD", request.getParameter("pw"));
+					map.put("PASSWORD", EgovFileScrty.encryptPassword(request.getParameter("pw"),request.getParameter("id")));
+					
 					map.put("appDate", appDate);
 					map.put("app110Date", app110Date);
 					adminService.expirationPwdUpd(map);
