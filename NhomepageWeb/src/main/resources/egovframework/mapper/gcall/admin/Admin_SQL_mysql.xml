@@ -320,7 +320,7 @@
 	<select id="subManagerListCount" parameterType='Map' resultType="Integer">
 		SELECT COUNT(0)
 		FROM DB_HOMEPAGE.HP_USER APP
-		WHERE DB_HOMEPAGE.USER_ID != 'admin'
+		WHERE APP.USER_ID != 'admin'
 		<if test="option == 1">
 		AND  APP.USER_ID LIKE CONCAT('%',#{search},'%')
 		</if>
@@ -402,7 +402,7 @@
 		WHERE USER_ID = #{USER_ID}
  	</update>
  	<update id='expirationPwdUpdTB' parameterType='map'>
-		UPDATE APP110.TB_USER
+		UPDATE DB_HOMEPAGE.TB_USER
 		SET
 		<!--
 			PWD = #{PASSWORD},
