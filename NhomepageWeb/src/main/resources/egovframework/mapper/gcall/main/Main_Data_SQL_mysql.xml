@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DataDAO">
+
+	<!-- contact 불러오기 clob map  -->
+	<resultMap id="contactClobMap" type="HashMap">
+		<result property="DB_SEQ" 				column="DB_SEQ"/>
+		<result property="TITLE" 				column="TITLE"/>
+		<result property="REG_DATE" 			column="REG_DATE"/>
+		<result property="VIEW_CNT" 			column="VIEW_CNT"/>
+		<result property="QUST_CNTN" 			column="QUST_CNTN" jdbcType="CLOB" javaType="String"/>
+		<result property="CONTENT" 				column="CONTENT" jdbcType="CLOB" javaType="String"/>
+	</resultMap>
+	
+	<!-- contact 총 개수 -->
+	<select id="contactListCount" parameterType="map" resultType="Integer">
+		SELECT
+			COUNT(*)
+		FROM
+			DB_HOMEPAGE.OM_CONTACT_DB AS ocd
+		WHERE
+			ocd.PROVE_STATE = '1'
+		<if test="sc_type != null and !sc_type.equals('')">
+			AND
+				ocd.CONTACT_DB_GUBUN = #{sc_type}
+		</if>
+		<if test="sc_type == null or sc_type.equals('')">
+			AND
+				ocd.CONTACT_DB_GUBUN IN ('03', '04')
+		</if>
+		<if test="sc_text != null">
+			AND (
+				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+			)
+		</if>
+	</select>
+	
+	<!-- contact 리스트 불러오기 -->
+	<select id="contactList" parameterType="map" resultType="hashmap">
+		SELECT
+			A.DB_SEQ,
+			A.TITLE,
+			SUBSTR(A.REG_DATE, 1, 4) ||'-' || SUBSTR(A.REG_DATE, 5, 2) || '-' || SUBSTR(A.REG_DATE, 7, 2) REG_DATE,
+			A.VIEW_CNT,
+			A.CONTACT_DB_GUBUN,
+			CASE WHEN (SELECT COUNT(*) FROM DB_HOMEPAGE.SC_FILES AS sfl WHERE sfl.PARENT_SEQ = A.DB_SEQ||'') = 0 THEN 'N' ELSE 'Y' END AS FILE_YN
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER (ORDER BY ocd.REG_DATE DESC, ocd.DB_SEQ DESC) AS ROWNUM,
+				ocd.DB_SEQ,
+				ocd.TITLE,
+				ocd.REG_DATE,
+				ocd.CONTACT_DB_GUBUN,
+				ocd.VIEW_CNT
+			FROM
+				DB_HOMEPAGE.OM_CONTACT_DB as ocd
+			WHERE
+				ocd.PROVE_STATE = '1'
+			<if test="sc_type != null and !sc_type.equals('')">
+				AND
+					ocd.CONTACT_DB_GUBUN = #{sc_type}
+			</if>
+			<if test="sc_type == null or sc_type.equals('')">
+				AND
+					ocd.CONTACT_DB_GUBUN IN ('03', '04')
+			</if>
+			<if test="sc_text != null">
+				AND (
+					ocd.TITLE LIKE '%' || #{sc_text} || '%'
+					OR
+					ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+					OR
+					ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+				)
+			</if>
+			ORDER BY
+				ocd.REG_DATE DESC,
+				ocd.DB_SEQ DESC
+		) AS A
+		WHERE 
+			A.ROWNUM BETWEEN #{start_index} + 1 AND #{start_index} + #{page_size}
+		ORDER BY 
+			A.ROWNUM ASC
+	</select>
+	
+	<!-- contact 조회수 증가 -->
+	<update id="contactReadCount" parameterType="map">
+		UPDATE
+			DB_HOMEPAGE.OM_CONTACT_DB AS ocd
+		SET 
+			ocd.VIEW_CNT = ocd.VIEW_CNT + 1
+		WHERE
+			ocd.DB_SEQ = #{db_seq}
+	</update>
+	
+	<!-- contact 불러오기  -->
+	<select id="contactDetail" parameterType="map" resultMap="contactClobMap">
+		SELECT
+			ocd.DB_SEQ,
+			ocd.TITLE,
+			SUBSTR(ocd.REG_DATE, 1, 4) ||'-' || SUBSTR(ocd.REG_DATE, 5, 2) || '-' || SUBSTR(ocd.REG_DATE, 7, 2) REG_DATE,
+			ocd.VIEW_CNT,
+			ocd.QUST_CNTN,
+			ocd.CONTENT
+		FROM
+			DB_HOMEPAGE.OM_CONTACT_DB AS ocd
+		WHERE
+			ocd.DB_SEQ = #{db_seq}
+	</select>
+	
+	<!-- contact 첨부파일 불러오기 -->
+	<select id="contactFileDetail" parameterType="map" resultType="hashmap">
+		SELECT
+			sfl.SEQ,
+			sfl.PARENT_SEQ,
+			sfl.ORIGINAL_FILE_NAME,
+			DATE_FORMAT(sfl.REG_DATE,'%Y%m%d') as REG_DATE
+		FROM
+			DB_HOMEPAGE.SC_FILES as sfl
+		WHERE
+			sfl.PARENT_SEQ = #{db_seq} || ''
+		ORDER BY
+			sfl.REG_DATE ASC
+	</select>
+	
+	<!-- contact 이전글 불러오기 -->
+	<select id="contactPrev" parameterType="map" resultType="hashmap">
+		SELECT
+			ocd.DB_SEQ, 
+			ocd.TITLE
+		FROM
+			DB_HOMEPAGE.OM_CONTACT_DB as ocd
+		WHERE
+			ocd.PROVE_STATE = '1'
+		<if test="sc_type != null and !sc_type.equals('')">
+			AND
+				ocd.CONTACT_DB_GUBUN = #{sc_type}
+		</if>
+		<if test="sc_text != null">
+			AND (
+				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+			)
+		</if>
+		<![CDATA[
+		AND
+			ocd.REG_DATE <= (SELECT ocd2.REG_DATE FROM DB_HOMEPAGE.OM_CONTACT_DB as ocd2 WHERE ocd2.DB_SEQ = #{db_seq})
+		AND
+			ocd.DB_SEQ < #{db_seq}
+		]]>
+		ORDER BY
+			ocd.DB_SEQ DESC
+		LIMIT 1
+	</select>
+	
+	<!-- contact 다음글 불러오기 -->
+	<select id="contactNext" parameterType="map" resultType="hashmap">
+		SELECT
+			ocd.DB_SEQ, 
+			ocd.TITLE
+		FROM
+			DB_HOMEPAGE.OM_CONTACT_DB as ocd
+		WHERE
+			ocd.PROVE_STATE = '1'
+		<if test="sc_type != null and !sc_type.equals('')">
+			AND
+				ocd.CONTACT_DB_GUBUN = #{sc_type}
+		</if>
+		<if test="sc_text != null">
+			AND (
+				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				OR
+				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+			)
+		</if>
+		<![CDATA[
+		AND
+			ocd.REG_DATE >= (SELECT ocd2.REG_DATE FROM DB_HOMEPAGE.OM_CONTACT_DB as ocd2 WHERE ocd2.DB_SEQ = #{db_seq})
+		AND
+			ocd.DB_SEQ > #{db_seq}
+		]]>
+		ORDER BY
+			ocd.DB_SEQ ASC
+		LIMIT 1
+	</select>
+	
+	<!-- contact 파일경로 불러오기 -->
+	<select id="contactFile" parameterType="map" resultType="hashmap">
+		SELECT 
+			sfl.FILE_NAME,
+			sfl.ORIGINAL_FILE_NAME,
+			sfl.REAL_PATH as UPLOAD_PATH
+		FROM 
+			DB_HOMEPAGE.SC_FILES as sfl
+		WHERE 
+			sfl.SEQ = #{num}
+	</select>
+
+	
+</mapper>
