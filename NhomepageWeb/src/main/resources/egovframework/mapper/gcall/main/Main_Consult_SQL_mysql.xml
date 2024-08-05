@@ -68,7 +68,7 @@
 	    )
 	</insert>
 	
-	<!-- 예약상담 insert -->
+	<!-- 예약상담 insert ( 안쓰는거 같음) -->
 	<insert id="insertReservationLog" parameterType="map">
 		INSERT INTO DB_HOMEPAGE.TB_CALB_DTL(                        
 			CNTR_CD, 
