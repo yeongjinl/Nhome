@@ -3,160 +3,443 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="AdminDAO">
 
-	<!-- 로그인 -->
+	<!-- TB_USER 체크 -->
 	<!-- APP110.DG_HASH 사용불가 -->
-	<select id="adminLoginYn" parameterType="map" resultType="hashmap">
-		<![CDATA[
-			SELECT 
-				USER_ID      
-				,USER_NAME
-				,PASSWORD
-				,USER_GRADE
-				,USER_TYPE
-				,EMAIL
-			FROM (
-			SELECT  
+	<select id="userExistenceChk" parameterType="map" resultType="Integer">
+	<![CDATA[
+		SELECT ''||COUNT(*) CNT
+		FROM (
+			SELECT
 			     USER_ID
 			    ,USER_NAME
-			    ,PASSWORD     
+			    ,PASSWORD
 			    ,USER_GRADE
 			    ,USER_TYPE
 			    ,EMAIL
-			FROM APP.HP_USER
+			FROM DB_HOMEPAGE.HP_USER
 			UNION ALL
-            SELECT 
-                 LGN_ID USER_ID
-                ,USER_NM USER_NAME
-                ,PWD PASSWORD
-                ,RTNG_CD USER_GRADE
-                ,'1' USER_TYPE
-                ,EMIL_ADDR EMAIL
-            FROM APP110.TB_USER
-            WHERE RTNG_CD>'050'
-            AND USE_YN='Y'
-            ) a
-			WHERE 	USER_ID		= #{user_id}
-			AND 	PASSWORD	= #{password}
-			ORDER BY USER_GRADE DESC
-		]]>
-	</select>
+			SELECT
+			     LGN_ID USER_ID
+			    ,USER_NM USER_NAME
+			    ,PWD PASSWORD
+			    ,RTNG_CD USER_GRADE
+			    ,'1' USER_TYPE
+			    ,EMIL_ADDR EMAIL
+			FROM DB_HOMEPAGE.TB_USER
+			WHERE RTNG_CD>'010'
+			AND USE_YN='Y'
+        ) us
+		WHERE 	USER_ID		= #{user_id}
+		AND 	PASSWORD	= #{password}
+		ORDER BY USER_GRADE DESC
+	]]>
+	<!--
 	
-	<!-- 탑메뉴가져오기 -->
-	<select id="commonMenuTopSelect" parameterType="map" resultType="hashmap">
+		AND 	PASSWORD = #{password}
+	-->
+	</select>
+	<!-- 패스워드 불일치시 업데이트 -->
+	<update id="pwFailedCountUpdate" parameterType="map">
+			UPDATE DB_HOMEPAGE.HP_USER
+			SET SOCIAL_ID = CONCAT((COALESCE(CAST(SOCIAL_ID AS DECIMAL(10,0)), 0)  + 1))
+			
+			<!--SET SOCIAL_ID = SOCIAL_ID + 1 --> 
+			WHERE USER_ID = #{user_id}
+	</update>
+	<!-- 로그인시 패스워드 불일치 초기화  -->
+ 	<update id="passwordCountCheckInitialize" parameterType='String'>
+		UPDATE DB_HOMEPAGE.HP_USER
+		SET SOCIAL_ID = TO_CHAR(0)
+		WHERE USER_ID = #{USER_ID} 	
+ 	</update>
+	<!-- 패스워드 불일치 횟수 체크 -->
+	<select id="pwFailedCountSelect" parameterType="map" resultType="Integer">
 		<![CDATA[
-			SELECT  
+			SELECT SOCIAL_ID
+			FROM DB_HOMEPAGE.HP_USER 
+			WHERE USER_ID = #{user_id}
+  		]]>
+	</select>
+	<!-- HP_USER 체크 -->
+	<select id="userLoginChk" parameterType="map" resultType="Integer">
+	<![CDATA[
+		SELECT COUNT(0)
+		FROM DB_HOMEPAGE.HP_USER
+ 		WHERE USER_ID = #{user_id}
+	]]>
+	</select>
+	<!-- TB_USER 세션 -->
+	<select id="TBUserSession" parameterType="map" resultType="hashmap">
+	<![CDATA[
+		SELECT
+			 USER_ID
+			,USER_NAME
+			,USER_GRADE
+			,POST_CD
+			,USER_TYPE
+			,EMAIL
+		FROM (
+			SELECT 
+	       		 USER_ID
+				,USER_NAME
+	      		,PASSWORD
+				,USER_GRADE
+				,USER_DEPT POST_CD
+				,USER_TYPE
+				,EMAIL
+      		from DB_HOMEPAGE.HP_USER WHERE USER_ID='110admin'
+      		UNION ALL
+			SELECT
+			     LGN_ID USER_ID
+			    ,USER_NM USER_NAME
+			    ,PWD PASSWORD
+			    ,RTNG_CD USER_GRADE
+			    ,TEAM_CD POST_CD
+			    ,'1' USER_TYPE
+			    ,EMIL_ADDR EMAIL
+			FROM APP110.TB_USER
+			WHERE RTNG_CD>'010'
+			AND USE_YN='Y'
+		)
+		WHERE USER_ID = #{user_id}
+		AND 	PASSWORD	=APP110.DG_HASH('TB_USER','PWD',#{password})
+	]]>
+	<!--
+ 		AND PASSWORD = #{password}
+	-->
+	</select>
+	<!-- HP_USER 세션 -->
+	<select id="HPUserSession" parameterType="map" resultType="hashmap">
+		SELECT
+		<if test="user_id == 'admin'">
+			USER_TYPE,
+			'1' CONSULT_AUTH,
+			'1' BODO_AUTH,
+			'1' NOTICE_AUTH,
+			'1' PROMOTION_AUTH,
+			'1' PHOTO_AUTH,
+			'1' FREEBOARD_AUTH,
+			'1' CONTEST_AUTH,
+			'1' FAQ_AUTH,
+			'1' STORY110_AUTH,
+			'1' POPUP_AUTH,
+			'1' POPUPZONE_AUTH,
+			'1' BANNER_AUTH,
+			'1' MOBILEVISITOR_AUTH,
+			'1' INTELIGENCE_AUTH,
+			'1' CODE_AUTH
+		</if>
+		<if test="user_id != 'admin'">
+			USER_TYPE,
+			<!--SUBSTR((select pwd_amnt_dttm from app110.tb_user where lgn_id=#{user_id}),0,8) AS -->
+			PASSWORD_DATE,
+			CONSULT_AUTH,
+			BODO_AUTH,
+			NOTICE_AUTH,
+			PROMOTION_AUTH,
+			PHOTO_AUTH,
+			FREEBOARD_AUTH,
+			CONTEST_AUTH,
+			FAQ_AUTH,
+			STORY110_AUTH,
+			POPUP_AUTH,
+			POPUPZONE_AUTH,
+			BANNER_AUTH,
+			MOBILEVISITOR_AUTH,
+			INTELIGENCE_AUTH,
+			CODE_AUTH
+		</if>
+		FROM DB_HOMEPAGE.HP_USER
+		WHERE USER_ID = #{user_id}
+ 		<if test="user_id != 'admin'">
+			AND USE_YN='Y'
+		</if>
+	</select>
+
+	<!-- sjs 수정부분 -->
+	<!-- 탑메뉴가져오기 -->
+<!-- 	<select id="commonMenuTopSelect" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT
 			     MENU_ID
 			    ,MENU_NAME
 			    ,MENU_POP_YN
 			    ,MENU_POP_SIZE
 			    ,MENU_IMG
-			    ,(SELECT 
-			    	COUNT(*) 
-			      FROM APP.HP_MENU 
+			    ,(SELECT
+			    	COUNT(*)
+			      FROM DB_HOMEPAGE.HP_MENU
 			      WHERE PARENT_ID=A.MENU_ID) SIDE_MENU_YN
-			FROM APP.HP_MENU A
+			FROM DB_HOMEPAGE.HP_MENU A
 			WHERE 	MENU_USE_YN	= '1'
 			AND		MENU_LEVEL	= '1'
-			AND 	MENU_GUBUN	= #{menu_gubun}
+			AND 	MENU_GUBUN	= #{MENU_GUBUN}
 			ORDER BY A.MENU_SORT
 		]]>
-	</select>
-	
-	<!-- 사이드,서브메뉴가져오기 -->
-	<select id="commonMenuSideSubSelect" parameterType="map" resultType="hashmap">
-		<![CDATA[
-			SELECT 
-                  A.MENU_ID
-			    , A.MENU_NAME
-                , A.MENU_TYPE
-			    , A.MENU_POP_YN
-			    , A.MENU_POP_SIZE
-			    , A.MENU_SORT
-			    , A.MODAL_YN
-                , A.PROCESS_ID
-                ,B.PROCESS_TYPE
-                ,B.PROCESS_URL
-                ,(CASE 	
-                  WHEN 
-                		A.MENU_TYPE=1 AND B.PROCESS_TYPE=2 
-                  THEN B.PROCESS_URL
-                  WHEN 
-                  		A.MENU_TYPE=1 AND B.PROCESS_TYPE=1 AND A.MENU_GUBUN=1 
-                  THEN '/admic.do#pi='||A.PROCESS_ID 
-                  WHEN 
-                  		A.MENU_TYPE=1 AND B.PROCESS_TYPE=1 AND A.MENU_GUBUN=0 
-                  THEN '/ic.do#pi='||A.PROCESS_ID 
-                  END) MENU_URL
-           FROM (
-                SELECT 
-			      MENU_ID
-			    , MENU_NAME
-                , MENU_TYPE
-			    , MENU_POP_YN
-			    , MENU_POP_SIZE
-			    , MENU_SORT
-			    , MODAL_YN
-                , PROCESS_ID
-                ,MENU_GUBUN
-			FROM (SELECT * FROM APP.HP_MENU WHERE MENU_GUBUN=#{MENU_GUBUN})
-			START WITH PARENT_ID=#{MENU_ID}
-			CONNECT BY PRIOR MENU_ID=PARENT_ID
-			--ORDER SIBLINGS BY MENU_SORT
-            ) A
-            LEFT JOIN HP_PROCESS B ON B.PROCESS_ID = A.PROCESS_ID
-            ORDER BY A.MENU_SORT WITH UR
-		]]>
-	</select>
-	
+	</select> -->
+
 	<!-- 방문자수 -->
 	<!-- TO_CHAR 및  TO_DATE 함수 사용 불가-->
 	<select id="statConnectCount" parameterType="map" resultType="hashmap">
 		<![CDATA[
-			SELECT 
+			SELECT
 			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			    ,TO_CHAR(TO_DATE(CONNECT_DATE,'YYYYMMDD'),'DAY', 'ko_kr') YOIL
 			    ,CONNECT_TIME
 			    ,CONNECT_CNT
-			FROM APP.HP_STATS A
-			WHERE CONNECT_DATE BETWEEN REPLACE(#{start_date}, '-', '') AND REPLACE(#{end_date}, '-', '')
+			FROM DB_HOMEPAGE.HP_STATS A
+			WHERE CONNECT_DATE BETWEEN REPLACE(#{START_DATE},'-','') AND REPLACE(#{END_DATE},'-','')
 			ORDER BY CONNECT_DATE DESC,CONNECT_TIME DESC
 		]]>
 	</select>
-	
+
 	<!-- 방문자수(일별) -->
 	<!-- TO_CHAR 및  TO_DATE 함수 사용 불가-->
 	<select id="statConnectCountSum" parameterType="map" resultType="hashmap">
 		<![CDATA[
-			SELECT 
+			SELECT
 			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			    ,TO_CHAR(TO_DATE(CONNECT_DATE,'YYYYMMDD'),'DAY', 'ko_kr') YOIL
 			    ,SUM(CONNECT_CNT) CONNECT_CNT
-			FROM APP.HP_STATS A
-			WHERE CONNECT_DATE BETWEEN REPLACE(#{start_date}, '-', '') AND REPLACE(#{end_date}, '-', '')
+			FROM DB_HOMEPAGE.HP_STATS A
+			WHERE CONNECT_DATE BETWEEN REPLACE(#{START_DATE},'-','') AND REPLACE(#{END_DATE},'-','')
 			GROUP BY CONNECT_DATE
 			ORDER BY CONNECT_DATE DESC
 		]]>
 	</select>
-	
+
 	<!-- 방문자수(월별) -->
 	<select id="statConnectMonthSum" parameterType="map" resultType="hashmap">
 		<![CDATA[
-			SELECT 
+			SELECT
 			     SUBSTR(CONNECT_DATE,1,4)||'-'||SUBSTR(CONNECT_DATE,5,2) CONNECT_DATE
-			    ,'.' YOIL
+			    ,'-' YOIL
 			    ,SUM(CONNECT_CNT) CONNECT_CNT
 			FROM (
-				SELECT 
+				SELECT
 				        SUBSTR(CONNECT_DATE,1,6) CONNECT_DATE
 				        ,CONNECT_CNT
-				FROM APP.HP_STATS
-				WHERE SUBSTR(CONNECT_DATE,1,6) BETWEEN REPLACE(#{start_date}, '-', '''') AND REPLACE(#{end_date}, '-', '')
-			) a
+				FROM DB_HOMEPAGE.HP_STATS
+				WHERE SUBSTR(CONNECT_DATE,1,6) BETWEEN REPLACE(#{START_MONTH},'-','') AND REPLACE(#{END_MONTH},'-','')
+			)
 			GROUP BY CONNECT_DATE
 			ORDER BY CONNECT_DATE DESC
 		]]>
 	</select>
+
+ 	<!--서브 관리자 등록 -->
+ 	<insert id='subManagerInsert' parameterType='String'>
+ 	<![CDATA[
+		INSERT INTO DB_HOMEPAGE.HP_USER (
+			USER_ID,
+			USER_NAME,
+			PASSWORD,
+			SOCIAL_ID,
+			USER_TYPE,
+			USER_GRADE,
+			USE_YN,
+			JOIN_DATE,
+			RETIRE_DATE,
+			HOME_TEL_NO,
+			MOBILE_TEL_NO,
+			EMAIL,
+			ZIPCODE,
+			ADDRESS,
+			BIRTHDAY,
+			LOGIN_YN,
+			LOGIN_DATE,
+			LOGIN_TIME,
+			LOGOUT_DATE,
+			LOGOUT_TIME,
+			PASSWORD_DATE,
+			USER_DEPT,
+			CONSULT_AUTH,
+			BODO_AUTH,
+			NOTICE_AUTH,
+			PROMOTION_AUTH,
+			PHOTO_AUTH,
+			FREEBOARD_AUTH,
+			CONTEST_AUTH,
+			FAQ_AUTH,
+			STORY110_AUTH,
+			POPUP_AUTH,
+			POPUPZONE_AUTH,
+			BANNER_AUTH,
+			MOBILEVISITOR_AUTH,
+			INTELIGENCE_AUTH,
+			CODE_AUTH
+		)
+		SELECT
+			LGN_ID USER_ID,
+			USER_NM USER_NAME,
+			PWD PASSWORD,
+			'' SOCIAL_ID,
+			'1' USER_TYPE,
+			nvl(RTNG_CD,'') USER_GRADE,
+			nvl(USE_YN,'') USE_YN,
+			nvl(RGSN_DTTM,'') JOIN_DATE,
+			'' RETIRE_DATE,
+			'' HOME_TEL_NO,
+			'' MOBILE_TEL_NO,
+			nvl(EMIL_ADDR,'') EMAIL,
+			'' ZIPCODE,
+			'' ADDRESS,
+			'' BIRTHDAY,
+			'' LOGIN_YN,
+			'' LOGIN_DATE,
+			'' LOGIN_TIME,
+			'' LOGOUT_DATE,
+			'' LOGOUT_TIME,
+			TO_CHAR(SYSDATE,'YYYYMMDD') PASSWORD_DATE,
+			nvl(TEAM_CD,'') USER_DEPT,
+			'0' CONSULT_AUTH,
+			'0' BODO_AUTH,
+			'0' NOTICE_AUTH,
+			'0' PROMOTION_AUTH,
+			'0' PHOTO_AUTH,
+			'0' FREEBOARD_AUTH,
+			'0' CONTEST_AUTH,
+			'0' FAQ_AUTH,
+			'0' STORY110_AUTH,
+			'0' POPUP_AUTH,
+			'0' POPUPZONE_AUTH,
+			'0' BANNER_AUTH,
+			'0' MOBILEVISITOR_AUTH,
+			'1' INTELIGENCE_AUTH,
+			'0' CODE_AUTH
+		FROM
+		   APP110.TB_USER
+		WHERE LGN_ID = #{user_id}
+	]]>
+ 	</insert>
+	<!-- 서브관리자 리스트 개수 -->
+	<select id="subManagerListCount" parameterType='Map' resultType="Integer">
+		SELECT COUNT(0)
+		FROM DB_HOMEPAGE.HP_USER APP
+		WHERE DB_HOMEPAGE.USER_ID != 'admin'
+		<if test="option == 1">
+		AND  DB_HOMEPAGE.USER_ID LIKE '%'||#{search}||'%'
+		</if>
+		<if test="option == 2">
+		AND  DB_HOMEPAGE.USER_NAME LIKE '%'||#{search}||'%'
+		</if>
+	</select>
+	<!-- 서브관리자 리스트 -->
+	<select id="subManagerList" parameterType='Map' resultType="HashMap">
+		SELECT *
+		FROM (
+			SELECT
+				ROW_NUMBER() OVER(ORDER BY DB_HOMEPAGE.JOIN_DATE DESC) AS rn,
+				nvl(DB_HOMEPAGE.USER_ID,'') AS USER_ID,
+				nvl(DB_HOMEPAGE.USER_NAME,'') AS USER_NAME,
+				nvl(DB_HOMEPAGE.JOIN_DATE,'') AS JOIN_DATE,
+				'1' USER_TYPE,
+				nvl(DB_HOMEPAGE.CONSULT_AUTH,'0') AS CONSULT_AUTH,
+				nvl(DB_HOMEPAGE.BODO_AUTH,'0') AS BODO_AUTH,
+				nvl(DB_HOMEPAGE.NOTICE_AUTH,'0') AS NOTICE_AUTH,
+				nvl(DB_HOMEPAGE.PROMOTION_AUTH,'0') AS PROMOTION_AUTH,
+				nvl(DB_HOMEPAGE.PHOTO_AUTH,'0') AS PHOTO_AUTH,
+				nvl(DB_HOMEPAGE.FREEBOARD_AUTH,'0') AS FREEBOARD_AUTH,
+				nvl(DB_HOMEPAGE.CONTEST_AUTH,'0') AS CONTEST_AUTH,
+				nvl(DB_HOMEPAGE.FAQ_AUTH,'0') AS FAQ_AUTH,
+				nvl(DB_HOMEPAGE.STORY110_AUTH,'0') AS STORY110_AUTH,
+				nvl(DB_HOMEPAGE.POPUP_AUTH,'0') AS POPUP_AUTH,
+				nvl(DB_HOMEPAGE.POPUPZONE_AUTH,'0') AS POPUPZONE_AUTH,
+				nvl(DB_HOMEPAGE.BANNER_AUTH,'0') AS BANNER_AUTH,
+				nvl(DB_HOMEPAGE.MOBILEVISITOR_AUTH,'0') AS MOBILEVISITOR_AUTH,
+				nvl(DB_HOMEPAGE.INTELIGENCE_AUTH,'0') AS INTELIGENCE_AUTH,
+				nvl(DB_HOMEPAGE.CODE_AUTH,'0') AS CODE_AUTH
+				FROM DB_HOMEPAGE.HP_USER APP
+				WHERE DB_HOMEPAGE.USER_ID != 'admin'
+				<if test="option == 1">
+				AND  DB_HOMEPAGE.USER_ID LIKE '%'||#{search}||'%'
+				</if>
+				<if test="option == 2">
+				AND  DB_HOMEPAGE.USER_NAME LIKE '%'||#{search}||'%'
+				</if>
+		)
+		WHERE rn BETWEEN #{startlist} AND #{listsize}
+	</select>
+	<!-- 서브관리자 디테일 -->
+	<select id="userDetail" parameterType='Map' resultType="HashMap">
+		SELECT * FROM DB_HOMEPAGE.HP_USER
+		WHERE USER_ID = #{user_id}
+	</select>
+ 	<!--서브 관리자 업데이트 -->
+ 	<update id='subManagerUpdate' parameterType='map'>
+		UPDATE DB_HOMEPAGE.HP_USER
+		SET	CONSULT_AUTH = #{CONSULT_AUTH},
+			BODO_AUTH = #{BODO_AUTH},
+			NOTICE_AUTH = #{NOTICE_AUTH},
+			PROMOTION_AUTH = #{PROMOTION_AUTH},
+			PHOTO_AUTH = #{PHOTO_AUTH},
+			FREEBOARD_AUTH = #{FREEBOARD_AUTH},
+			CONTEST_AUTH = #{CONTEST_AUTH},
+			FAQ_AUTH = #{FAQ_AUTH},
+			STORY110_AUTH = #{STORY110_AUTH},
+			POPUP_AUTH = #{POPUP_AUTH},
+			POPUPZONE_AUTH = #{POPUPZONE_AUTH},
+			BANNER_AUTH = #{BANNER_AUTH},
+			MOBILEVISITOR_AUTH = #{MOBILEVISITOR_AUTH},
+			INTELIGENCE_AUTH = #{INTELIGENCE_AUTH},
+			CODE_AUTH = #{CODE_AUTH}
+		WHERE USER_ID= #{USER_ID}
+ 	</update>
+ 	<!-- 30일 기간만료 비밀번호 변경 -->
+ 	<update id='expirationPwdUpd' parameterType='map'>
+
+		UPDATE DB_HOMEPAGE.HP_USER
+		SET
+		<!--
+			PASSWORD = #{PASSWORD},
+		-->
+			PASSWORD = APP110.DG_HASH('HP_USER','PASSWORD',#{PASSWORD}),
+			PASSWORD_DATE = #{appDate}
+		WHERE USER_ID = #{USER_ID}
+ 	</update>
+ 	<update id='expirationPwdUpdTB' parameterType='map'>
+		UPDATE APP110.TB_USER
+		SET
+		<!--
+			PWD = #{PASSWORD},
+		-->
+			PWD = APP110.DG_HASH('TB_USER','PWD',#{PASSWORD}),
+			PWD_AMNT_DTTM = #{app110Date}
+		WHERE LGN_ID = #{USER_ID}
+ 	</update>
+ 	<!--로그인 날짜 변경 -->
+ 	<update id='loginDateUpdate' parameterType='map'>
+		UPDATE DB_HOMEPAGE.HP_USER
+		SET	LOGIN_DATE = #{LOGIN_DATE},
+			LOGIN_TIME = #{LOGIN_TIME}
+		WHERE USER_ID= #{USER_ID}
+ 	</update>
+ 	<!--로그아웃 날짜 변경 -->
+ 	<update id='logoutDateUpdate' parameterType='map'>
+		UPDATE DB_HOMEPAGE.HP_USER
+		SET	LOGOUT_DATE = #{LOGOUT_DATE},
+			LOGOUT_TIME = #{LOGOUT_TIME}
+		WHERE USER_ID= #{USER_ID}
+ 	</update>
+ 	
+ 	<select id="passwordFailedCountCheck" resultType="int">
+        SELECT SOCIAL_ID
+        FROM DB_HOMEPAGE.HP_USER
+        WHERE user_id = #{user_id} AND password = #{SOCIAL_ID}
+    </select>
+ 	
+    
+ 	<insert id="lgnHstr2Insert" parameterType="egovframework.gcall.dto.LgnHistoryDTO2">
+		 INSERT INTO DB_HOMEPAGE.HP_LGN_HSTR2 (
+		 	LGN_HSTR_ID, USER_ID, IP_ADDR, RGSN_DTTM, STATUS, PROCESS_URI
+		 )
+		 VALUES (
+		 	#{LGN_HSTR_ID}, #{USER_ID}, #{IP_ADDR}, DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'), #{STATUS}, #{PROCESS_URI}
+		 )
+ 	</insert>
  	
 </mapper>

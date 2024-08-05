@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import egovframework.com.utl.sim.service.EgovFileScrty;
 import egovframework.gcall.dto.LgnHistoryDTO2;
 import egovframework.gcall.dto.LgnHistoryDTO2.LoginStatus;
 import egovframework.gcall.dto.ResultDTO;
@@ -63,8 +64,8 @@ public class AdminController {
 	public void loginRetrieve(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
 		ResultDTO resultDTO = new ResultDTO();
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("user_id", CmmUtil.nvl(request.getParameter("loginID")));
-		map.put("password", CmmUtil.nvl(request.getParameter("loginPW")));
+		map.put("user_id", CmmUtil.nvl(request.getParameter("loginID")));		
+		map.put("password", EgovFileScrty.encryptPassword(CmmUtil.nvl(request.getParameter("loginPW")), CmmUtil.nvl(request.getParameter("loginID"))));
 		int userExistenceChk = adminService.userExistenceChk(map);
 		
 		
