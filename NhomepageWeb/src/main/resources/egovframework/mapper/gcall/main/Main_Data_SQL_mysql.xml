@@ -31,11 +31,11 @@
 		</if>
 		<if test="sc_text != null">
 			AND (
-				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				ocd.TITLE LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				ocd.CONTENT LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+				ocd.QUST_CNTN LIKE CONCAT('%',#{sc_text},'%')
 			)
 		</if>
 	</select>
@@ -71,11 +71,11 @@
 			</if>
 			<if test="sc_text != null">
 				AND (
-					ocd.TITLE LIKE '%' || #{sc_text} || '%'
+					ocd.TITLE LIKE CONCAT('%',#{sc_text},'%')
 					OR
-					ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+					ocd.CONTENT LIKE CONCAT('%',#{sc_text},'%')
 					OR
-					ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+					ocd.QUST_CNTN LIKE CONCAT('%',#{sc_text},'%')
 				)
 			</if>
 			ORDER BY
@@ -143,11 +143,11 @@
 		</if>
 		<if test="sc_text != null">
 			AND (
-				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				ocd.TITLE LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				ocd.CONTENT LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+				ocd.QUST_CNTN LIKE CONCAT('%',#{sc_text},'%')
 			)
 		</if>
 		<![CDATA[
@@ -176,11 +176,11 @@
 		</if>
 		<if test="sc_text != null">
 			AND (
-				ocd.TITLE LIKE '%' || #{sc_text} || '%'
+				ocd.TITLE LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.CONTENT LIKE '%' || #{sc_text} || '%'
+				ocd.CONTENT LIKE CONCAT('%',#{sc_text},'%')
 				OR
-				ocd.QUST_CNTN LIKE '%' || #{sc_text} || '%'
+				ocd.QUST_CNTN LIKE CONCAT('%',#{sc_text},'%')
 			)
 		</if>
 		<![CDATA[

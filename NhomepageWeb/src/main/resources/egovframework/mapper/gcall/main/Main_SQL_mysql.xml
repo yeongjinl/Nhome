@@ -161,19 +161,19 @@
 		<if test="sc_type != null and sc_text != null">
 			<if test="sc_type == 'title'">
 				AND
-					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 			</if>
 			
 			<if test="sc_type == 'content'">
 				AND
-					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 			</if>
 			
 			<if test="sc_type == ''">
 				AND (
-					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 					OR
-					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 				)
 			</if>
 		</if>
@@ -232,19 +232,19 @@
 				<if test="sc_type != null and sc_text != null">
 					<if test="sc_type == 'title'">
 						AND
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == 'content'">
 						AND
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == ''">
 						AND (
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 							OR
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 						)
 					</if>
 				</if>
@@ -356,19 +356,19 @@
 		<if test="sc_type != null and sc_text != null">
 			<if test="sc_type == 'title'">
 				AND
-					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 			</if>
 			
 			<if test="sc_type == 'content'">
 				AND
-					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 			</if>
 			
 			<if test="sc_type == ''">
 				AND (
-					hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 					OR
-					hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+					hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 				)
 			</if>
 		</if>
@@ -395,19 +395,19 @@
 				<if test="sc_type != null and sc_text != null">
 					<if test="sc_type == 'title'">
 						AND
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == 'content'">
 						AND
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == ''">
 						AND (
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 							OR
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 						)
 					</if>
 				</if>
@@ -437,19 +437,19 @@
 			<if test="sc_type != null and sc_text != null">
 				<if test="sc_type == 'title'">
 					AND
-						hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+						hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 				</if>
 				
 				<if test="sc_type == 'content'">
 					AND
-						hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+						hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 				</if>
 				
 				<if test="sc_type == ''">
 					AND (
-						hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+						hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 						OR
-						hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+						hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 					)
 				</if>
 			</if>
@@ -492,19 +492,19 @@
 				<if test="sc_type != null and sc_text != null">
 					<if test="sc_type == 'title'">
 						AND
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == 'content'">
 						AND
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 					</if>
 					
 					<if test="sc_type == ''">
 						AND (
-							hbd.BOARD_TITLE LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_TITLE LIKE CONCAT('%',#{sc_text},'%')
 							OR
-							hbd.BOARD_CONTENTS LIKE '%' || #{sc_text} || '%'
+							hbd.BOARD_CONTENTS LIKE CONCAT('%',#{sc_text},'%')
 						)
 					</if>
 				</if>
