@@ -39,7 +39,7 @@ public class OtherManagementController {
 	* moVisitStat
 	* 모바일방문자통계
 	*/
-	@RequestMapping(value="/moVisitStat", method=RequestMethod.GET)
+	@RequestMapping(value="/moVisitStat.do", method=RequestMethod.GET)
 	public ModelAndView moVisitStat(HttpServletRequest request, HttpServletResponse response,HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -83,7 +83,7 @@ public class OtherManagementController {
 		return mv;
 	}
 	// 방문 통계 요청 로직
-	@RequestMapping(value="/statRetrieve", method=RequestMethod.POST)
+	@RequestMapping(value="/statRetrieve.do", method=RequestMethod.POST)
 	public void statRetrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		String sql_id = request.getParameter("sql_id") + "";
@@ -114,7 +114,7 @@ public class OtherManagementController {
 	}
 	
 	// 상담 시간 관리
-	@RequestMapping(value="/counsel", method=RequestMethod.GET)
+	@RequestMapping(value="/counsel.do", method=RequestMethod.GET)
 	public ModelAndView zone(HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {

@@ -47,7 +47,7 @@ public class NoticeManageController {
 	@Resource(name = "BoardService")
 	private BoardService boardService;
 
-	@RequestMapping(value="/list", method=RequestMethod.GET)
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	public ModelAndView list(
 			@RequestParam(value = "confId", defaultValue = "51") String confId,
 			@RequestParam(value = "curPage", defaultValue = "1") Integer curPage,
@@ -126,7 +126,7 @@ public class NoticeManageController {
 		}
 		return mv;
 	}
-	@RequestMapping(value="/reg", method=RequestMethod.GET)
+	@RequestMapping(value="/reg.do", method=RequestMethod.GET)
 	public ModelAndView reg(HttpSession session) {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -148,7 +148,7 @@ public class NoticeManageController {
 		}
 		return mv;
 	}
-	@RequestMapping(value="/regProc",method=RequestMethod.POST)
+	@RequestMapping(value="/regProc.do",method=RequestMethod.POST)
 	public ModelAndView regProc(BoardCommonDTO bDTO,
 			@RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
 			@RequestParam(value="FILE_SORT",required=false) String[] FILE_SORT,
@@ -206,7 +206,7 @@ public class NoticeManageController {
 		return mv;
 
 	}
-	@RequestMapping(value="/detail")
+	@RequestMapping(value="/detail.do")
 	public ModelAndView detail(HttpServletRequest req,HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -259,7 +259,7 @@ public class NoticeManageController {
 
 		return mv;
 	}
-	@RequestMapping(value="/updateView")
+	@RequestMapping(value="/updateView.do")
 	public ModelAndView updateView(HttpServletRequest req,HttpSession session) throws JSONException {
 		ModelAndView mv = new ModelAndView();
 		Map<String,Object> sessionUI = (Map<String,Object>)session.getAttribute("ss_user_info");
@@ -312,7 +312,7 @@ public class NoticeManageController {
 
 		return mv;
 	}
-	@RequestMapping(value="update",method=RequestMethod.POST)
+	@RequestMapping(value="update.do",method=RequestMethod.POST)
 	public ModelAndView update(BoardCommonDTO bDTO,
 			@RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
 			@RequestParam(value="FILE_SORT",required=false) String[] FILE_SORT,
@@ -390,7 +390,7 @@ public class NoticeManageController {
 
 		return mv;
 	}
-	@RequestMapping(value="deleteBoard")
+	@RequestMapping(value="deleteBoard.do")
 	public ModelAndView deleteBoard(HttpServletRequest req,HttpSession session) {
 		ModelAndView mv = new ModelAndView();
 		//1. confid boardnum 
@@ -428,7 +428,7 @@ public class NoticeManageController {
 		mv.addObject("msg","삭제 되었습니다.");
 		return mv;
 	}
-	@RequestMapping(value="/fileDelete")
+	@RequestMapping(value="/fileDelete.do")
 	public void fileDelete(HttpServletRequest req,HttpServletResponse res) throws Exception{
 		//filedelete는 배치로 돌려서 삭제할 예정
 		/*System.out.println("asd"+req.getParameter("fileName"));
