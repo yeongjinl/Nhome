@@ -66,7 +66,7 @@ public class ConsultManageController {
 	private SeverDataService severdataService;
 
 	//게시판 리스트 
-	@RequestMapping(value="/list", method=RequestMethod.GET)
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	public ModelAndView list(
 			@RequestParam(value = "confId", defaultValue = "9") String confId,
 			@RequestParam(value = "curPage", defaultValue = "1") Integer curPage,
@@ -154,7 +154,7 @@ public class ConsultManageController {
 	}
 	
 	//게시판 등록 뷰 부분
-	@RequestMapping(value="/reg", method=RequestMethod.GET)
+	@RequestMapping(value="/reg.do", method=RequestMethod.GET)
 	public ModelAndView reg(HttpSession session) {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -178,7 +178,7 @@ public class ConsultManageController {
 	}
 	
 	//게시판 등록
-	@RequestMapping(value="/regProc",method=RequestMethod.POST)
+	@RequestMapping(value="/regProc.do",method=RequestMethod.POST)
 	public ModelAndView regProc(BoardCommonDTO bDTO,
 			@RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
 			@RequestParam(value="FILE_SORT",required=false) String[] FILE_SORT,
@@ -242,7 +242,7 @@ public class ConsultManageController {
 	}
 	
 	//게시판 상세보기
-	@RequestMapping(value="/detail")
+	@RequestMapping(value="/detail.do")
 	public ModelAndView detail(HttpServletRequest req,HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -307,7 +307,7 @@ public class ConsultManageController {
 		return mv;
 	}
 	//게시판 수정 뷰
-	@RequestMapping(value="/updateView")
+	@RequestMapping(value="/updateView.do")
 	public ModelAndView updateView(HttpServletRequest req,HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		Map<String,Object> sessionUI = (Map<String,Object>)session.getAttribute("ss_user_info");
@@ -367,7 +367,7 @@ public class ConsultManageController {
 	}
 	
 	//게시판 수정
-	@RequestMapping(value="update",method=RequestMethod.POST)
+	@RequestMapping(value="update.do",method=RequestMethod.POST)
 	public ModelAndView update(BoardCommonDTO bDTO,
 			@RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
 			@RequestParam(value="FILE_SORT",required=false) String[] FILE_SORT,
@@ -449,7 +449,7 @@ public class ConsultManageController {
 
 		return mv;
 	}
-	@RequestMapping(value="deleteBoard")
+	@RequestMapping(value="deleteBoard.do")
 	public ModelAndView deleteBoard(HttpServletRequest req,HttpSession session) {
 		ModelAndView mv = new ModelAndView();
 		//1. confid boardnum 
@@ -492,7 +492,7 @@ public class ConsultManageController {
 	}
 	
 
-	@RequestMapping(value="/fileAdd")
+	@RequestMapping(value="/fileAdd.do")
 	public void fileAdd(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		//HP_BOARD_ADMIN에서 테이블 조회 / 파일 경로
@@ -980,7 +980,7 @@ public class ConsultManageController {
 	}
 	
 	
-	@RequestMapping(value="/fileDelete")
+	@RequestMapping(value="/fileDelete.do")
 	public void fileDelete(HttpServletRequest req,HttpServletResponse res) throws Exception{
 		//filedelete는 배치로 돌려서 삭제할 예정
 		/*System.out.println("asd"+req.getParameter("fileName"));

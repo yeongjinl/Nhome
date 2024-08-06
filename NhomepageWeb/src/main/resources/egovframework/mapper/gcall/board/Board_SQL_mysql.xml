@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardDAO">
+
+   <!-- sjs 수정부분 -->
+   
+   <select id="boardSequence" resultType="int">
+       SELECT IFNULL(MAX(BOARD_NUM),0)+1 AS BOARD_NUM FROM DB_HOMEPAGE.HP_BOARD       
+   </select>
+
+   <insert id="regProc" parameterType="BoardCommonDTO">
+   INSERT
+      INTO DB_HOMEPAGE.HP_BOARD
+      (
+         BOARD_NUM,
+         CONF_ID,
+         USER_ID,
+         BOARD_TITLE,
+         BOARD_WRITER,
+         BOARD_EMAIL,
+         BOARD_CONTENTS,
+         BOARD_IP,
+         BOARD_REG_DATE,
+         IS_TOP,
+         BOARD_VIEW,
+         WRITE_PATH,
+         IS_SOMENEIL,
+         SOMENEIL_IMG_PATH,
+         BOARD_PW
+      )
+      VALUES
+      (
+         #{BOARD_NUM},
+         #{CONF_ID},
+         #{USER_ID},
+         #{TITLE},
+         #{USER_ID},
+         #{EMAIL},
+         #{CONTENT},
+         #{BOARD_IP},
+         <!--  #{BOARD_REG_DATE}, -->
+         NOW(),
+         IFNULL(#{IS_TOP},0),
+         0,
+         0,
+         0,
+         '',
+         ''
+      )
+
+   </insert>
+   <select id="boardListAdminCount" parameterType="map" resultType="int">
+      SELECT
+         COUNT(*) as COUNTS
+      FROM
+         DB_HOMEPAGE.HP_BOARD A
+      WHERE
+         <if test="selSearch==0">
+         A.CONF_ID = #{confId}
+         </if>
+         <if test="selSearch==1">
+         A.CONF_ID = #{confId} AND  A.BOARD_TITLE like CONCAT('%',#{searchWord},'%')
+         </if>
+         <if test="selSearch==2">
+         A.CONF_ID = #{confId} AND  A.BOARD_CONTENTS like CONCAT('%',#{searchWord},'%')
+         </if>
+         <if test="selSearch==3">
+         A.CONF_ID = #{confId} AND A.BOARD_WRITER like CONCAT('%',#{searchWord},'%')
+         </if>
+   </select>
+   <resultMap type="map" id="clobStringSelect">
+      <result property="RN" column="RN" />
+      <result property="TITLE" column="TITLE" />
+      <result property="USER_ID" column="USER_ID" />
+      <result property="REPLY_CNT" column="REPLY_CNT" />
+      <result property="REG_DATE" column="REG_DATE" />
+      <result property="CONTENTS" column="CONTENTS" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="BOARD_WRITER" column="BOARD_WRITER" />
+      <result property="BOARD_VIEW" column="BOARD_VIEW" />
+      <result property="FILE_YN" column="FILE_YN" />
+      <result property="BOARD_NUM" column="BOARD_NUM" />
+      <result property="IS_TOP" column="IS_TOP" />
+      <result property="CONF_ID" column="CONF_ID" />
+   </resultMap>
+   
+   <select id="boardAdminList" parameterType="PaginationDTO" resultMap="clobStringSelect">
+      SELECT *
+      FROM (
+         SELECT
+            ROW_NUMBER() OVER(ORDER BY BOARD_REG_DATE DESC ,BOARD_NUM DESC) AS RN
+            , A.BOARD_TITLE TITLE
+            , A.BOARD_CONTENTS CONTENTS
+            ,(SELECT CONCAT('' ,COUNT(*)) FROM DB_HOMEPAGE.HP_BOARD_REPLY WHERE DB_HOMEPAGE.HP_BOARD_REPLY.BOARD_NUM = A.BOARD_NUM) REPLY_CNT
+            , DATE_FORMAT(A.BOARD_REG_DATE, '%Y-%m-%d') REG_DATE
+            , A.BOARD_WRITER BOARD_WRITER
+            , A.BOARD_VIEW BOARD_VIEW
+            , if((SELECT COUNT(*) FROM DB_HOMEPAGE.HP_FILES WHERE FILE_TYPE='3' AND USE_YN='1' AND BOARD_NUM=A.BOARD_NUM)=0, 'N','Y') FILE_YN
+             , A.BOARD_NUM BOARD_NUM
+             , if(IS_TOP='1','O','X') IS_TOP
+             , A.CONF_ID CONF_ID
+             , (SELECT USER_ID FROM DB_HOMEPAGE.HP_BOARD WHERE BOARD_NUM=A.BOARD_NUM) USER_ID
+         FROM
+            DB_HOMEPAGE.HP_BOARD A
+         WHERE
+            <if test="selSearch==0">
+            A.CONF_ID = #{confId}
+            </if>
+            <if test="selSearch==1">
+            A.CONF_ID = #{confId} AND  A.BOARD_TITLE like CONCAT('%',#{searchWord},'%')
+            </if>
+            <if test="selSearch==2">
+            A.CONF_ID = #{confId} AND  A.BOARD_CONTENTS like CONCAT('%',#{searchWord},'%')
+            </if>
+            <if test="selSearch==3">
+            A.CONF_ID = #{confId} AND A.BOARD_WRITER like CONCAT('%',#{searchWord},'%')
+            </if>
+      ) A
+      WHERE rn BETWEEN #{startIndex} AND #{startInd2}
+      ORDER BY REG_DATE DESC,BOARD_NUM DESC
+   </select>
+   
+   <resultMap type="map" id="clobString">
+      <result property="BOARD_NUM" column="BOARD_NUM" />
+      <result property="CONF_ID" column="CONF_ID" />
+      <result property="USER_ID" column="USER_ID" />
+      <result property="BOARD_TITLE" column="BOARD_TITLE" />
+      <result property="BOARD_WRITER" column="BOARD_WRITER" />
+      <result property="BOARD_CONTENTS" column="BOARD_CONTENTS" jdbcType="CLOB" javaType="java.lang.String" />
+      <result property="BOARD_IP" column="BOARD_IP" />
+      <result property="BOARD_VIEW" column="BOARD_VIEW" />
+      <result property="BOARD_REG_DATE" column="BOARD_REG_DATE" />
+      <result property="IS_TOP" column="IS_TOP" />
+      <result property="WRITE_PATH" column="WRITE_PATH" />
+      <result property="IS_SOMENEIL" column="IS_SOMENEIL" />
+      <result property="SOMENEIL_IMG_PATH" column="SOMENEIL_IMG_PATH" />
+      <result property="BOARD_PW" column="BOARD_PW" />
+   </resultMap>
+   
+   <select id="getBoardDetail" parameterType="map" resultMap="clobString">
+      SELECT
+         IFNULL(BOARD_NUM,' ') AS BOARD_NUM,
+         IFNULL(CONF_ID,' ') AS CONF_ID,
+         IFNULL(USER_ID,' ') AS USER_ID,
+         IFNULL(BOARD_TITLE,' ') AS BOARD_TITLE,
+         IFNULL(BOARD_WRITER,' ') AS BOARD_WRITER,
+         IFNULL(BOARD_EMAIL,' ') AS BOARD_EMAIL,
+         IFNULL(BOARD_CONTENTS,' ') AS BOARD_CONTENTS,
+         IFNULL(BOARD_IP,' ') AS BOARD_IP,
+         IFNULL(BOARD_VIEW,' ') AS BOARD_VIEW,
+         IFNULL(BOARD_REG_DATE,' ') AS BOARD_REG_DATE,
+         IFNULL(IS_TOP,0) AS IS_TOP,
+         IFNULL(WRITE_PATH,' ') AS WRITE_PATH,
+         IFNULL(IS_SOMENEIL,' ') AS IS_SOMENEIL,
+         IFNULL(SOMENEIL_IMG_PATH,' ') AS SOMENEIL_IMG_PATH,
+         IFNULL(BOARD_PW,' ') AS BOARD_PW
+      FROM
+         DB_HOMEPAGE.HP_BOARD
+      WHERE
+         CONF_ID = #{confId} AND BOARD_NUM = #{boardNum}
+   </select>
+   <select id="getBoardFileList" parameterType="map" resultType="map">
+      SELECT
+        SEQ,
+       	CONF_ID,
+        BOARD_NUM,
+        FILE_NAME,
+        IFNULL(FILE_TYPE,3),
+        USE_YN,
+        ORIGINAL_FILE_NAME,
+        REAL_PATH,
+        IFNULL(TEMP_ID,' '),
+        REG_DATE,
+        FILE_SORT
+      FROM
+         DB_HOMEPAGE.HP_FILES
+      WHERE
+         CONF_ID = #{CONF_ID} AND BOARD_NUM = #{BOARD_NUM}
+   </select>
+   <delete id="deleteFile" parameterType="BoardCommonDTO">
+      DELETE
+      FROM
+         DB_HOMEPAGE.HP_FILES
+      WHERE
+         BOARD_NUM = #{BOARD_NUM} AND CONF_ID = #{CONF_ID}
+   </delete>
+   <delete id="deleteBoard" parameterType="BoardCommonDTO">
+      DELETE
+      FROM
+         DB_HOMEPAGE.HP_BOARD
+      WHERE
+         BOARD_NUM = #{BOARD_NUM} AND CONF_ID = #{CONF_ID}
+   </delete>
+   <update id="updProc" parameterType="BoardCommonDTO">
+      UPDATE DB_HOMEPAGE.HP_BOARD
+      SET
+         BOARD_NUM           = #{BOARD_NUM},
+         CONF_ID             = #{CONF_ID},
+         USER_ID             = #{USER_ID},
+         BOARD_TITLE         = #{TITLE},
+         BOARD_WRITER        = #{USER_ID},
+         BOARD_EMAIL         = #{EMAIL},
+         BOARD_CONTENTS      = #{CONTENT},
+         BOARD_IP            = #{BOARD_IP},
+         BOARD_REG_DATE      = #{BOARD_REG_DATE},
+         IS_TOP              = IFNULL(#{IS_TOP},0),
+         WRITE_PATH          = 0,
+         IS_SOMENEIL         = 0,
+         SOMENEIL_IMG_PATH   = ''
+      WHERE
+      BOARD_NUM = #{BOARD_NUM} AND CONF_ID = #{CONF_ID}
+   </update>
+      <delete id="deleteFileName" parameterType="string">
+      DELETE
+      FROM
+         DB_HOMEPAGE.HP_FILES
+      WHERE
+         FILE_NAME = #{FILE_NAME}
+      </delete>
+      <select id="getScFileList" parameterType="map" resultType="map">
+      SELECT
+         SEQ,
+         CONF_ID,
+         PARENT_SEQ,
+         FILE_NAME,
+         FILE_TYPE,
+         USE_YN,
+         ORIGINAL_FILE_NAME,
+         REAL_PATH,
+         TEMP_ID,
+         REG_DATE,
+         FILE_SORT
+      FROM
+         DB_HOMEPAGE.SC_FILES
+      WHERE
+         CONF_ID = 'CONTACT_DB' AND PARENT_SEQ = #{PARENT_SEQ}
+      </select>
+</mapper>

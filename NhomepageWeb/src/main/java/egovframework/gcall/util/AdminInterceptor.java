@@ -8,13 +8,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 import egovframework.gcall.dto.LgnHistoryDTO2;
 import egovframework.gcall.dto.LgnHistoryDTO2.LoginStatus;
 import egovframework.gcall.service.AdminService;
 
 
-public class AdminInterceptor extends HandlerInterceptorAdapter {
+public class AdminInterceptor implements HandlerInterceptor {
 	
 	@Resource(name = "AdminService")
 	private AdminService adminService;
@@ -41,7 +41,6 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
 		
 		request.setAttribute("requestURI", requestURI);
 		request.setAttribute("lgnStatus", lgnStatus);
-
 		
         if (!requestURI.endsWith("/g110/adm.do") && !requestURI.endsWith("/g110/statRetrieve.do") && !requestURI.endsWith("/severdata/conGubunL.do") && !requestURI.endsWith("/severdata/dbGubun.do") && !requestURI.endsWith("/severdata/classGubunL.do") && !requestURI.endsWith("/severdata/flagGubun.do") && !requestURI.endsWith("/severdata/classGubunM.do")  && !requestURI.endsWith("/severdata/classGubunS.do") && !requestURI.endsWith("/popup/popupList.do")) {
         	
@@ -53,22 +52,20 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
                     String sessionUserID = (String) userInfo.get("USER_ID");
                     
                 	LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID, sessionUserID, ipAddress, lgnStatus, requestURI).build();
-                	//yj일단주석(테이블 미생성)
-                	//adminService.lgnHstr2Insert(lgnHstr);
+                	adminService.lgnHstr2Insert(lgnHstr);
                 }else { 
             		LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID, loginID, ipAddress, lgnStatus, requestURI).build();
-            		//yj일단주석(테이블 미생성)
-            		//adminService.lgnHstr2Insert(lgnHstr);
+            		adminService.lgnHstr2Insert(lgnHstr);
                 }
 	        	
         	}
         }
-		return super.preHandle(request, response, handler);
+		return HandlerInterceptor.super.preHandle(request, response, handler);
 	}
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView mav) throws Exception {
-	    super.postHandle(request, response, handler, mav);
+		HandlerInterceptor.super.postHandle(request, response, handler, mav);
 	}
 
 }

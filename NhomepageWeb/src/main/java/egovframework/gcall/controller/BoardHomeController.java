@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/top")
 @Controller
 public class BoardHomeController {
-	@RequestMapping(value="/topBoard")
+	@RequestMapping(value="/topBoard.do")
 	public ModelAndView topBoard(HttpSession session) {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -23,7 +23,7 @@ public class BoardHomeController {
 		return mv;
 	}
 
-	@RequestMapping(value="/redirect")
+	@RequestMapping(value="/redirect.do")
 	   public ModelAndView red(HttpServletRequest req) {
 	      ModelAndView mv = new ModelAndView();
 	      mv.addObject("url",req.getParameter("url"));
