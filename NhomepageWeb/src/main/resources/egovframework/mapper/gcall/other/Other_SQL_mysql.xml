@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="OtherDAO">
+
+	<!-- sjs 수정부분 -->
+	<!-- 방문자수(페이지별) -->
+	<select id="statConnectCount" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT
+				CONCAT(SUBSTR(ms.CONNECT_DATE, 1, 4) , '-' , SUBSTR(ms.CONNECT_DATE, 5, 2) , '-' , SUBSTR(ms.CONNECT_DATE, 7, 2)) as CONNECT_DATE,
+				ms.CONNECT_CNT AS YOIL,
+				ms.CONNECT_PAGE AS PAGE_NAME
+			FROM
+				DB_HOMEPAGE.MO_STATS AS ms
+			WHERE
+				ms.CONNECT_PAGE != 'VISIT'
+			AND
+				ms.CONNECT_DATE BETWEEN REPLACE(#{START_DATE},'-','') AND REPLACE(#{END_DATE},'-','')
+			ORDER BY
+				ms.CONNECT_DATE DESC,
+				ms.CONNECT_TIME DESC
+		]]>
+	</select>
+
+	<!-- 방문자수(일별) -->
+	<select id="statConnectCountSum" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT
+				CONCAT(SUBSTR(A.CONNECT_DATE,1,4),'-',SUBSTR(A.CONNECT_DATE,5,2),'-',SUBSTR(A.CONNECT_DATE,7,2)) CONNECT_DATE,
+				CASE WEEKDAY(DATE_FORMAT(CONNECT_DATE, '%Y%m%d'))
+					WHEN '6' THEN '일요일'
+					WHEN '0' THEN '월요일'
+					WHEN '1' THEN '화요일'
+					WHEN '2' THEN '수요일'
+					WHEN '3' THEN '목요일'
+					WHEN '4' THEN '금요일'
+					WHEN '5' THEN '토요일'
+					END AS YOIL,
+			    SUM(CONNECT_CNT) CONNECT_CNT
+			FROM DB_HOMEPAGE.MO_STATS A
+			WHERE CONNECT_DATE BETWEEN REPLACE(#{START_DATE},'-','') AND REPLACE(#{END_DATE},'-','')
+			AND CONNECT_PAGE='VISIT'
+			GROUP BY CONNECT_DATE
+			ORDER BY CONNECT_DATE DESC
+		]]>
+	</select>
+
+	<!-- 방문자수(월별) -->
+	<select id="statConnectMonthSum" parameterType="map" resultType="hashmap">
+		<![CDATA[
+			SELECT
+				CONCAT(SUBSTR(CONNECT_DATE,1,4),'-',SUBSTR(CONNECT_DATE,5,2)) CONNECT_DATE,
+				'-' YOIL,
+				SUM(CONNECT_CNT) CONNECT_CNT
+			FROM (
+				SELECT
+					SUBSTR(CONNECT_DATE,1,6) CONNECT_DATE,
+					CONNECT_CNT
+				FROM DB_HOMEPAGE.MO_STATS
+				WHERE SUBSTR(CONNECT_DATE,1,6) BETWEEN REPLACE(#{START_MONTH},'-','') AND REPLACE(#{END_MONTH},'-','')
+				AND CONNECT_PAGE='VISIT'
+			) A
+			GROUP BY CONNECT_DATE
+			ORDER BY CONNECT_DATE DESC
+		]]>
+	</select>
+</mapper>

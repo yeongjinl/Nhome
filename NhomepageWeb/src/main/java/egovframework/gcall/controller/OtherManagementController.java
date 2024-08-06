@@ -137,7 +137,7 @@ public class OtherManagementController {
 		return mv;
 	}
 	
-	@RequestMapping(value="/counselList", method=RequestMethod.POST)
+	@RequestMapping(value="/counselList.do", method=RequestMethod.POST)
 	public void counselList(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception{
 		Map<String, Object> hMap = new HashMap<String, Object>();
 		hMap.put("USE_YN", CmmUtil.nvl(request.getParameter("use")));
@@ -154,7 +154,7 @@ public class OtherManagementController {
 		
 	}
 	
-	@RequestMapping(value="/regCounsel",method=RequestMethod.POST)
+	@RequestMapping(value="/regCounsel.do",method=RequestMethod.POST)
 	public ModelAndView regProc(HttpServletRequest request, HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		try {
@@ -198,7 +198,7 @@ public class OtherManagementController {
 		return mv;
 	}
 	
-	@RequestMapping(value="/counselDetail", method=RequestMethod.POST)
+	@RequestMapping(value="/counselDetail.do", method=RequestMethod.POST)
 	public void counselDetail(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String dbAlarmId = CmmUtil.nvl(request.getParameter("SIGNMGT_NUM"));
 		int param = Integer.parseInt(dbAlarmId);
@@ -215,7 +215,7 @@ public class OtherManagementController {
 		}
 	}
 	
-	@RequestMapping(value="/bdayCheck", method=RequestMethod.POST)
+	@RequestMapping(value="/bdayCheck.do", method=RequestMethod.POST)
 	public void bdayCheck(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> hMap = new HashMap<String, Object>();
 		hMap.put("OFDAY", CmmUtil.nvl(request.getParameter("OFDAY")).replace("-", ""));
@@ -232,7 +232,7 @@ public class OtherManagementController {
 		}
 	}
 	
-	@RequestMapping(value="/rdayCheck", method=RequestMethod.POST)
+	@RequestMapping(value="/rdayCheck.do", method=RequestMethod.POST)
 	public void rdayCheck(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Map<String, Object> hMap = new HashMap<String, Object>();
 		hMap.put("OFDAY", CmmUtil.nvl(request.getParameter("OFDAY")).replace("-", ""));

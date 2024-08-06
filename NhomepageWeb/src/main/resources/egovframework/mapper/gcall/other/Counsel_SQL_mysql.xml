@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 
+	KST 2016 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CounselDAO">
+
+	<!-- 기존 쿼리 SELECT A.ALARM_ID, A.ALARM_TITLE, A.ALARM_TYPE, A.ALARM_LINK_URL, 
+		A.ALARM_REG_DATE, A.ALARM_SORT, A.ALARM_USE, A.ALARM_TARGET, A.REG_ID, A.ALARM_REAL_PATH, 
+		A.ALARM_ORIGINAL_NAME, A.ALARM_CONTENT, A.ALARM_POSITION, A.ALARM_START_DATE, 
+		A.ALARM_END_DATE, B.USER_NAME FROM DB_HOMEPAGE.HP_ALARM A, (SELECT USER_ID,USER_NAME 
+		FROM ( SELECT USER_ID,USER_NAME FROM DB_HOMEPAGE.HP_USER UNION ALL SELECT USER_ID,USER_NM 
+		FROM DB_HOMEPAGE.TB_USER WHERE USER_ID!='admin' )) B WHERE ALARM_USE LIKE '%' 
+		|| #{ALARM_USE} || '%' AND ALARM_TYPE = #{ALARM_TYPE} ORDER BY ALARM_ID DESC, 
+		ALARM_SORT DESC -->
+
+	<!-- 변경된 쿼리 B를 leftouterjoin으로 변경 / A.REG_ID = B.USER_ID 기준 -->
+	<select id="counselList" parameterType='map'
+		resultType="hashmap">
+		<![CDATA[
+	      SELECT 
+	         SM.SIGNMGT_NUM,
+	         IFNULL(SM.OFDAY, '00000000') OFDAY,
+	         IFNULL(SM.BEGINHR, '') BEGINHR,
+	         IFNULL(SM.ENDHR, '') ENDHR,
+	         IFNULL(SM.REGISTDQF, '') REGISTDQF,
+	         IFNULL(SM.USE_YN, '') USE_YN,
+	         IFNULL(SM.RGSDE, '00000000') RGSDE,
+	         IFNULL(SM.CHANGEDE, '00000000') CHANGEDE,
+	         IFNULL(SM.REGISTER, '') REGISTER,
+	         IFNULL(SM.CHANGER, '') CHANGER
+	      FROM 
+	         DB_HOMEPAGE.SIGNCNSLTMGT AS SM
+	      WHERE
+			USE_YN LIKE CONCAT('%', #{USE_YN} , '%')
+	      ORDER BY 
+	         SM.OFDAY DESC
+   		]]>
+	</select>
+
+	<insert id="counselInsert" parameterType='Map'>
+		<![CDATA[
+	      INSERT INTO 
+	         DB_HOMEPAGE.SIGNCNSLTMGT(
+	            SIGNMGT_NUM, 
+	            OFDAY, 
+	            BEGINHR, 
+	            ENDHR, 
+	            REGISTDQF, 
+	            USE_YN, 
+	            RGSDE, 
+	            REGISTER
+	         )
+	      VALUES(
+	         SELECT IFNULL(MAX(SIGNMGT_NUM),0)+1 FROM DB_HOMEPAGE.SIGNCNSLTMGT
+	         #{OFDAY}, 
+	         #{BEGINHR}, 
+	         #{ENDHR}, 
+	         #{REGISTDQF}, 
+	         #{USE_YN}, 
+	         #{RGSDE}, 
+	         #{REGISTER}
+	      )
+	   	]]>
+	</insert>
+	<update id='counselUpdate' parameterType='map'>
+		<![CDATA[
+		      UPDATE 
+		         DB_HOMEPAGE.SIGNCNSLTMGT AS SM
+		      SET 
+		         SM.OFDAY = #{OFDAY}, 
+		         SM.BEGINHR = #{BEGINHR},
+		         SM.ENDHR = #{ENDHR},
+		         SM.REGISTDQF = #{REGISTDQF},
+		         SM.USE_YN = #{USE_YN},
+		         SM.CHANGEDE = #{CHANGEDE},
+		         SM.CHANGER = #{CHANGER}
+		      WHERE 
+		         SM.SIGNMGT_NUM = #{SIGNMGT_NUM}
+	   ]]>
+	</update>
+	<select id="counselDetail" parameterType='int'
+		resultType='hashmap'>
+		<![CDATA[
+	      SELECT 
+	         SM.SIGNMGT_NUM,
+	         IFNULL(SM.OFDAY, '00000000') OFDAY,
+	         IFNULL(SM.BEGINHR, '') BEGINHR,
+	         IFNULL(SM.ENDHR, '') ENDHR,
+	         IFNULL(SM.REGISTDQF, '') REGISTDQF,
+	         IFNULL(SM.USE_YN, '') USE_YN,
+	         IFNULL(SM.RGSDE, '00000000') RGSDE,
+	         IFNULL(SM.CHANGEDE, '00000000') CHANGEDE,
+	         IFNULL(SM.REGISTER, '') REGISTER,
+	         IFNULL(SM.CHANGER, '') CHANGER
+	      FROM 
+	         DB_HOMEPAGE.SIGNCNSLTMGT AS SM
+	      WHERE
+	         SM.SIGNMGT_NUM = #{SIGNMGT_NUM}
+	   ]]>
+	</select>
+	
+	<select id="bdayCheck" parameterType='map'
+		resultType='hashmap'>
+		<![CDATA[
+	      SELECT 
+          	SCDL_ID
+          FROM 
+          	DB_HOMEPAGE.TB_SCDL_DTL
+          WHERE 
+          	SUBSTR(SCDL_STT_DTTM,1,8)=REPLACE(#{OFDAY},'-','')
+          AND 
+          	SCDL_TYP_CD='O'
+	   ]]>
+	</select>
+	
+	<select id="rdayCheck" parameterType='map'
+		resultType='hashmap'>
+		<![CDATA[
+	     	SELECT 
+			  	OFDAY
+			FROM 
+			  	DB_HOMEPAGE.SIGNCNSLTMGT
+			WHERE 
+			  OFDAY = #{OFDAY}
+	   ]]>
+	</select>
+</mapper>
