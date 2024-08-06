@@ -53,10 +53,12 @@ public class AdminInterceptor extends HandlerInterceptorAdapter {
                     String sessionUserID = (String) userInfo.get("USER_ID");
                     
                 	LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID, sessionUserID, ipAddress, lgnStatus, requestURI).build();
-            		adminService.lgnHstr2Insert(lgnHstr);
+                	//yj일단주석(테이블 미생성)
+                	//adminService.lgnHstr2Insert(lgnHstr);
                 }else { 
             		LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID, loginID, ipAddress, lgnStatus, requestURI).build();
-            		adminService.lgnHstr2Insert(lgnHstr);
+            		//yj일단주석(테이블 미생성)
+            		//adminService.lgnHstr2Insert(lgnHstr);
                 }
 	        	
         	}

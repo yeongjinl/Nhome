@@ -135,7 +135,8 @@ public class AdminController {
 				}
 				lgnStatus = LoginStatus.LOGIN;
 				LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID,loginID, ipAddress, lgnStatus, requestURI).build();
-				adminService.lgnHstr2Insert(lgnHstr);
+				//yj일단주석(테이블 미생성)
+				//adminService.lgnHstr2Insert(lgnHstr);
 				
 				adminService.passwordCountCheckInitialize(loginID);
 			} else {
@@ -217,7 +218,8 @@ public class AdminController {
 				
 				lgnStatus = LoginStatus.LOGIN_FAILURE;
 				LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID,loginID, ipAddress, lgnStatus, requestURI).build();
-				adminService.lgnHstr2Insert(lgnHstr);
+				//yj일단주석(테이블 미생성)
+				//adminService.lgnHstr2Insert(lgnHstr);
 			}
 		}
 		

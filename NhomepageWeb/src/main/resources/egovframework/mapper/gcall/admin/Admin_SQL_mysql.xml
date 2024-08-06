@@ -186,7 +186,15 @@
 			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
-			    ,TO_CHAR(TO_DATE(CONNECT_DATE,'YYYYMMDD'),'DAY', 'ko_kr') YOIL
+			    , CASE WEEKDAY(DATE_FORMAT(CONNECT_DATE, '%Y%m%d'))
+					WHEN '1' THEN '일요일'
+					WHEN '2' THEN '월요일'
+					WHEN '3' THEN '화요일'
+					WHEN '4' THEN '수요일'
+					WHEN '5' THEN '목요일'
+					WHEN '6' THEN '금요일'
+					WHEN '7' THEN '토요일'
+					END AS YOIL
 			    ,CONNECT_TIME
 			    ,CONNECT_CNT
 			FROM DB_HOMEPAGE.HP_STATS A
@@ -203,7 +211,15 @@
 			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
 			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
-			    ,TO_CHAR(TO_DATE(CONNECT_DATE,'YYYYMMDD'),'DAY', 'ko_kr') YOIL
+			      , CASE WEEKDAY(DATE_FORMAT(A.CONNECT_DATE, '%Y%m%d'))
+					WHEN '1' THEN '일요일'
+					WHEN '2' THEN '월요일'
+					WHEN '3' THEN '화요일'
+					WHEN '4' THEN '수요일'
+					WHEN '5' THEN '목요일'
+					WHEN '6' THEN '금요일'
+					WHEN '7' THEN '토요일'
+					END AS YOIL
 			    ,SUM(CONNECT_CNT) CONNECT_CNT
 			FROM DB_HOMEPAGE.HP_STATS A
 			WHERE CONNECT_DATE BETWEEN REPLACE(#{START_DATE},'-','') AND REPLACE(#{END_DATE},'-','')
@@ -225,7 +241,7 @@
 				        ,CONNECT_CNT
 				FROM DB_HOMEPAGE.HP_STATS
 				WHERE SUBSTR(CONNECT_DATE,1,6) BETWEEN REPLACE(#{START_MONTH},'-','') AND REPLACE(#{END_MONTH},'-','')
-			)
+			) T
 			GROUP BY CONNECT_DATE
 			ORDER BY CONNECT_DATE DESC
 		]]>
