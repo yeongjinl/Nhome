@@ -6,7 +6,7 @@
 	<!-- 코드타입 -->
 	<select id="getCodeType" parameterType="map" resultType="map">
 		SELECT
-			ROWNUMBER() OVER(ORDER BY CODE_TYPE DESC) AS ROWNUM
+			ROW_NUMBER() OVER(ORDER BY CODE_TYPE DESC) AS ROWNUM
 			,CODE_TYPE
 			,CODE_TYPE_NAME
 			,ETC
@@ -18,11 +18,11 @@
 	<!-- 코드북 -->
 	<select id="getCodeBook" parameterType="map" resultType="map">
 		SELECT
-			ROWNUMBER() OVER(ORDER BY CODE_ID DESC) AS ROWNUM
+			ROW_NUMBER() OVER(ORDER BY CODE_ID DESC) AS ROWNUM
 			,CODE_TYPE
 			,CODE_ID
 			,CODE_NAME
-			,DECODE(A.USE_YN,'1','O','X') USE_YN
+			,IF(A.USE_YN='1','O','X') USE_YN
 			,PARENT_TYPE
 			,PARENT_ID
 			,ETC1
@@ -32,7 +32,7 @@
 		FROM
 			DB_HOMEPAGE.HP_CODEBOOK A
 		WHERE CODE_TYPE = #{CODE_TYPE}
-		AND DECODE(A.USE_YN,'1','O','X') LIKE '%' || #{USE_YN} || '%'
+		AND IF(A.USE_YN='1','O','X') LIKE CONCAT('%',#{USE_YN},'%')
 		ORDER BY CODE_ID
 	</select>
 
@@ -103,16 +103,16 @@
 
 	<!-- 코드북 update -->
 	<update id="updateCodebook" parameterType="map">
-	UPDATE DB_HOMEPAGE.HP_CODEBOOK
-			SET CODE_NAME 		= #{CODE_NAME}
-			    ,PARENT_TYPE 	= #{PARENT_TYPE}
-				,PARENT_ID 		= #{PARENT_ID}
-				,ETC1 			= #{ETC1}
-				,ETC2 			= #{ETC2}
-				,ETC3 			= #{ETC3}
-				,USE_YN 		= #{USE_YN}
-		    WHERE 	CODE_TYPE 	= #{CODE_TYPE}
-			AND 	CODE_ID 	= #{CODE_ID}
+		UPDATE DB_HOMEPAGE.HP_CODEBOOK
+		SET CODE_NAME 		= #{CODE_NAME}
+		    ,PARENT_TYPE 	= #{PARENT_TYPE}
+			,PARENT_ID 		= #{PARENT_ID}
+			,ETC1 			= #{ETC1}
+			,ETC2 			= #{ETC2}
+			,ETC3 			= #{ETC3}
+			,USE_YN 		= #{USE_YN}
+	    WHERE 	CODE_TYPE 	= #{CODE_TYPE}
+		AND 	CODE_ID 	= #{CODE_ID}
 	</update>
 
 

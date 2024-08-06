@@ -3,8 +3,7 @@ package egovframework.gcall.controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class SubManagementController {
 	@Resource(name = "AdminService")
 	private AdminService adminService;
 
-	@RequestMapping(value="/list", method=RequestMethod.GET)
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	public ModelAndView list(HttpServletRequest request, HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -90,7 +89,7 @@ public class SubManagementController {
 
 		return mv;
 	}
-	@RequestMapping(value="/listInfo", method=RequestMethod.POST)
+	@RequestMapping(value="/listInfo.do", method=RequestMethod.POST)
 	public void listInfo(HttpServletRequest request,HttpServletResponse response) throws Exception{
 		int page = Integer.parseInt(request.getParameter("pageno"));
 		String search = request.getParameter("search");
@@ -124,7 +123,7 @@ public class SubManagementController {
 			data.close();
 		}
 	}
-	@RequestMapping(value="/proc", method=RequestMethod.POST)
+	@RequestMapping(value="/proc.do", method=RequestMethod.POST)
 	public ModelAndView proc(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception{
 		int page = 0;
 		String search = "";
@@ -179,7 +178,7 @@ public class SubManagementController {
 		mv.addObject("msg","수정되었습니다.");
 		return mv;
 	}
-	@RequestMapping(value="/detail", method=RequestMethod.GET)
+	@RequestMapping(value="/detail.do", method=RequestMethod.GET)
 	public ModelAndView detail(HttpServletRequest request,HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_auth")!=null) {

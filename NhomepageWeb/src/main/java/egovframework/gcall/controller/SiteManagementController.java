@@ -30,7 +30,7 @@ public class SiteManagementController {
 	* 일정/문의 관리
 	*/
 	//사이트 클릭시 코드북 화면 보여줌
-	@RequestMapping(value="/codebook", method=RequestMethod.GET)
+	@RequestMapping(value="/codebook.do", method=RequestMethod.GET)
 	public ModelAndView codebook(HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_auth")!=null) {
@@ -66,7 +66,7 @@ public class SiteManagementController {
 		return mv;
 	}
 
-	@RequestMapping(value="getCode", method=RequestMethod.GET)
+	@RequestMapping(value="getCode.do", method=RequestMethod.GET)
 	public ModelAndView getCode() throws Exception{
 		Map<String, Object> map = new HashMap<String, Object>();
 		//List<HashMap<String, Object>> codetypeList = siteService.getCodeType(map);
@@ -77,7 +77,7 @@ public class SiteManagementController {
 		return mv;
 	}
 
-	@RequestMapping(value="getCodeBook", method=RequestMethod.POST)
+	@RequestMapping(value="getCodeBook.do", method=RequestMethod.POST)
 	public ModelAndView getCodeBook(HttpServletRequest req) throws Exception{
 		String code = CmmUtil.nvl(req.getParameter("code"));
 		String codeType = CmmUtil.nvl(req.getParameter("codeType"));
@@ -98,7 +98,7 @@ public class SiteManagementController {
 	}
 
 
-	@RequestMapping(value="insertCodeType", method=RequestMethod.POST)
+	@RequestMapping(value="insertCodeType.do", method=RequestMethod.POST)
 	public ModelAndView insertCodeType(HttpServletRequest req) throws Exception{
 		String cName = req.getParameter("cName");
 		String cType = req.getParameter("cType");
@@ -128,7 +128,7 @@ public class SiteManagementController {
 		return mv;
 	}
 
-	@RequestMapping(value="typeDel", method=RequestMethod.GET)
+	@RequestMapping(value="typeDel.do", method=RequestMethod.GET)
 	public ModelAndView typeDel(HttpServletRequest req) throws Exception{
 		String code_type = req.getParameter("code_type");
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -153,7 +153,7 @@ public class SiteManagementController {
 		return mv;
 	}
 
-	@RequestMapping(value="insertCodebook", method=RequestMethod.POST)
+	@RequestMapping(value="insertCodebook.do", method=RequestMethod.POST)
 	   public ModelAndView insertCodebook(HttpServletRequest req) throws Exception{
 	      String status = req.getParameter("status");
 	      System.out.println("status  : " + status);
@@ -217,7 +217,7 @@ public class SiteManagementController {
 	   }
 
 
-	@RequestMapping(value="updateCodeType", method=RequestMethod.POST)
+	@RequestMapping(value="updateCodeType.do", method=RequestMethod.POST)
 	public ModelAndView updateCodeType(HttpServletRequest req) throws Exception{
 		String cName = req.getParameter("cName");
 		String cType = req.getParameter("cType");
@@ -248,7 +248,7 @@ public class SiteManagementController {
 	}
 
 	//코드북 수정
-	@RequestMapping(value="updateCodebook", method=RequestMethod.POST)
+	@RequestMapping(value="updateCodebook.do", method=RequestMethod.POST)
 	public ModelAndView updateCodebook(HttpServletRequest req) throws Exception{
 		String code_type = req.getParameter("code_type");
 		String code_id = req.getParameter("code_id");
