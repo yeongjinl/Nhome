@@ -7,7 +7,7 @@
 	<!-- APP110.DG_HASH 사용불가 -->
 	<select id="userExistenceChk" parameterType="map" resultType="Integer">
 	<![CDATA[
-		SELECT ''||COUNT(*) CNT
+		SELECT CONCAT('',COUNT(*)) CNT
 		FROM (
 			SELECT
 			     USER_ID
@@ -183,17 +183,17 @@
 	<select id="statConnectCount" parameterType="map" resultType="hashmap">
 		<![CDATA[
 			SELECT
-			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
-			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
-			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			     CONCAT(SUBSTR(A.CONNECT_DATE,1,4),'-'
+			     ,SUBSTR(A.CONNECT_DATE,5,2),'-'
+			     ,SUBSTR(A.CONNECT_DATE,7,2)) CONNECT_DATE
 			    , CASE WEEKDAY(DATE_FORMAT(CONNECT_DATE, '%Y%m%d'))
-					WHEN '1' THEN '일요일'
-					WHEN '2' THEN '월요일'
-					WHEN '3' THEN '화요일'
-					WHEN '4' THEN '수요일'
-					WHEN '5' THEN '목요일'
-					WHEN '6' THEN '금요일'
-					WHEN '7' THEN '토요일'
+					WHEN '6' THEN '일요일'
+					WHEN '0' THEN '월요일'
+					WHEN '1' THEN '화요일'
+					WHEN '2' THEN '수요일'
+					WHEN '3' THEN '목요일'
+					WHEN '4' THEN '금요일'
+					WHEN '5' THEN '토요일'
 					END AS YOIL
 			    ,CONNECT_TIME
 			    ,CONNECT_CNT
@@ -208,17 +208,17 @@
 	<select id="statConnectCountSum" parameterType="map" resultType="hashmap">
 		<![CDATA[
 			SELECT
-			     SUBSTR(A.CONNECT_DATE,1,4)||'-'
-			     ||SUBSTR(A.CONNECT_DATE,5,2)||'-'
-			     ||SUBSTR(A.CONNECT_DATE,7,2) CONNECT_DATE
+			     CONCAT(SUBSTR(A.CONNECT_DATE,1,4),'-'
+			     ,SUBSTR(A.CONNECT_DATE,5,2),'-'
+			     ,SUBSTR(A.CONNECT_DATE,7,2)) CONNECT_DATE
 			      , CASE WEEKDAY(DATE_FORMAT(A.CONNECT_DATE, '%Y%m%d'))
-					WHEN '1' THEN '일요일'
-					WHEN '2' THEN '월요일'
-					WHEN '3' THEN '화요일'
-					WHEN '4' THEN '수요일'
-					WHEN '5' THEN '목요일'
-					WHEN '6' THEN '금요일'
-					WHEN '7' THEN '토요일'
+					WHEN '6' THEN '일요일'
+					WHEN '0' THEN '월요일'
+					WHEN '1' THEN '화요일'
+					WHEN '2' THEN '수요일'
+					WHEN '3' THEN '목요일'
+					WHEN '4' THEN '금요일'
+					WHEN '5' THEN '토요일'
 					END AS YOIL
 			    ,SUM(CONNECT_CNT) CONNECT_CNT
 			FROM DB_HOMEPAGE.HP_STATS A
@@ -232,7 +232,7 @@
 	<select id="statConnectMonthSum" parameterType="map" resultType="hashmap">
 		<![CDATA[
 			SELECT
-			     SUBSTR(CONNECT_DATE,1,4)||'-'||SUBSTR(CONNECT_DATE,5,2) CONNECT_DATE
+			     CONCAT(SUBSTR(CONNECT_DATE,1,4),'-',SUBSTR(CONNECT_DATE,5,2)) CONNECT_DATE
 			    ,'-' YOIL
 			    ,SUM(CONNECT_CNT) CONNECT_CNT
 			FROM (
@@ -295,13 +295,13 @@
 			PWD PASSWORD,
 			'' SOCIAL_ID,
 			'1' USER_TYPE,
-			nvl(RTNG_CD,'') USER_GRADE,
-			nvl(USE_YN,'') USE_YN,
-			nvl(RGSN_DTTM,'') JOIN_DATE,
+			IFNULL(RTNG_CD,'') USER_GRADE,
+			IFNULL(USE_YN,'') USE_YN,
+			IFNULL(RGSN_DTTM,'') JOIN_DATE,
 			'' RETIRE_DATE,
 			'' HOME_TEL_NO,
 			'' MOBILE_TEL_NO,
-			nvl(EMIL_ADDR,'') EMAIL,
+			IFNULL(EMIL_ADDR,'') EMAIL,
 			'' ZIPCODE,
 			'' ADDRESS,
 			'' BIRTHDAY,
@@ -310,8 +310,8 @@
 			'' LOGIN_TIME,
 			'' LOGOUT_DATE,
 			'' LOGOUT_TIME,
-			TO_CHAR(SYSDATE,'YYYYMMDD') PASSWORD_DATE,
-			nvl(TEAM_CD,'') USER_DEPT,
+			DATE_FORMAT(SYSDATE(),'%Y%m%d') PASSWORD_DATE,
+			IFNULL(TEAM_CD,'') USER_DEPT,
 			'0' CONSULT_AUTH,
 			'0' BODO_AUTH,
 			'0' NOTICE_AUTH,
@@ -332,6 +332,7 @@
 		WHERE LGN_ID = #{user_id}
 	]]>
  	</insert>
+ 	
 	<!-- 서브관리자 리스트 개수 -->
 	<select id="subManagerListCount" parameterType='Map' resultType="Integer">
 		SELECT COUNT(0)
@@ -344,31 +345,32 @@
 		AND  APP.USER_NAME LIKE CONCAT('%',#{search},'%')
 		</if>
 	</select>
+	
 	<!-- 서브관리자 리스트 -->
 	<select id="subManagerList" parameterType='Map' resultType="HashMap">
 		SELECT *
 		FROM (
 			SELECT
 				ROW_NUMBER() OVER(ORDER BY APP.JOIN_DATE DESC) AS rn,
-				nvl(APP.USER_ID,'') AS USER_ID,
-				nvl(APP.USER_NAME,'') AS USER_NAME,
-				nvl(APP.JOIN_DATE,'') AS JOIN_DATE,
+				IFNULL(APP.USER_ID,'') AS USER_ID,
+				IFNULL(APP.USER_NAME,'') AS USER_NAME,
+				IFNULL(APP.JOIN_DATE,'') AS JOIN_DATE,
 				'1' USER_TYPE,
-				nvl(APP.CONSULT_AUTH,'0') AS CONSULT_AUTH,
-				nvl(APP.BODO_AUTH,'0') AS BODO_AUTH,
-				nvl(APP.NOTICE_AUTH,'0') AS NOTICE_AUTH,
-				nvl(APP.PROMOTION_AUTH,'0') AS PROMOTION_AUTH,
-				nvl(APP.PHOTO_AUTH,'0') AS PHOTO_AUTH,
-				nvl(APP.FREEBOARD_AUTH,'0') AS FREEBOARD_AUTH,
-				nvl(APP.CONTEST_AUTH,'0') AS CONTEST_AUTH,
-				nvl(APP.FAQ_AUTH,'0') AS FAQ_AUTH,
-				nvl(APP.STORY110_AUTH,'0') AS STORY110_AUTH,
-				nvl(APP.POPUP_AUTH,'0') AS POPUP_AUTH,
-				nvl(APP.POPUPZONE_AUTH,'0') AS POPUPZONE_AUTH,
-				nvl(APP.BANNER_AUTH,'0') AS BANNER_AUTH,
-				nvl(APP.MOBILEVISITOR_AUTH,'0') AS MOBILEVISITOR_AUTH,
-				nvl(APP.INTELIGENCE_AUTH,'0') AS INTELIGENCE_AUTH,
-				nvl(APP.CODE_AUTH,'0') AS CODE_AUTH
+				IFNULL(APP.CONSULT_AUTH,'0') AS CONSULT_AUTH,
+				IFNULL(APP.BODO_AUTH,'0') AS BODO_AUTH,
+				IFNULL(APP.NOTICE_AUTH,'0') AS NOTICE_AUTH,
+				IFNULL(APP.PROMOTION_AUTH,'0') AS PROMOTION_AUTH,
+				IFNULL(APP.PHOTO_AUTH,'0') AS PHOTO_AUTH,
+				IFNULL(APP.FREEBOARD_AUTH,'0') AS FREEBOARD_AUTH,
+				IFNULL(APP.CONTEST_AUTH,'0') AS CONTEST_AUTH,
+				IFNULL(APP.FAQ_AUTH,'0') AS FAQ_AUTH,
+				IFNULL(APP.STORY110_AUTH,'0') AS STORY110_AUTH,
+				IFNULL(APP.POPUP_AUTH,'0') AS POPUP_AUTH,
+				IFNULL(APP.POPUPZONE_AUTH,'0') AS POPUPZONE_AUTH,
+				IFNULL(APP.BANNER_AUTH,'0') AS BANNER_AUTH,
+				IFNULL(APP.MOBILEVISITOR_AUTH,'0') AS MOBILEVISITOR_AUTH,
+				IFNULL(APP.INTELIGENCE_AUTH,'0') AS INTELIGENCE_AUTH,
+				IFNULL(APP.CODE_AUTH,'0') AS CODE_AUTH
 				FROM DB_HOMEPAGE.HP_USER APP
 				WHERE APP.USER_ID != 'admin'
 				<if test="option == 1">
@@ -377,7 +379,7 @@
 				<if test="option == 2">
 				AND  APP.USER_NAME LIKE  CONCAT('%',#{search},'%')
 				</if>
-		)
+		) A
 		WHERE rn BETWEEN #{startlist} AND #{listsize}
 	</select>
 	<!-- 서브관리자 디테일 -->
