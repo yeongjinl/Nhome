@@ -31,7 +31,7 @@ public class PopupManagementController {
 	private PopupService popupService;
 
 	// 팝업
-	@RequestMapping(value="/popup", method=RequestMethod.GET)
+	@RequestMapping(value="/popup.do", method=RequestMethod.GET)
 	public ModelAndView popup(HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_auth")!=null) {
@@ -53,7 +53,7 @@ public class PopupManagementController {
 		}
 		return mv;
 	}
-	@RequestMapping(value="/popupList", method=RequestMethod.POST)
+	@RequestMapping(value="/popupList.do", method=RequestMethod.POST)
 	public void popupList(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception{
 		Map<String, Object> hMap = new HashMap<String, Object>();
 		hMap.put("ALARM_USE", CmmUtil.nvl(request.getParameter("use")));
@@ -70,7 +70,7 @@ public class PopupManagementController {
 		}
 		
 	}
-	@RequestMapping(value="/regProc",method=RequestMethod.POST)
+	@RequestMapping(value="/regProc.do",method=RequestMethod.POST)
 	public ModelAndView regProc(HttpServletRequest request, HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		try {
@@ -139,7 +139,7 @@ public class PopupManagementController {
 		return mv;
 	}
 
-	@RequestMapping(value="/popupDetail", method=RequestMethod.POST)
+	@RequestMapping(value="/popupDetail.do", method=RequestMethod.POST)
 	public void popupDetail(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String dbAlarmId = CmmUtil.nvl(request.getParameter("ALARM_ID"));
 		int param = Integer.parseInt(dbAlarmId);
@@ -161,7 +161,7 @@ public class PopupManagementController {
 		}
 	}
 	// 팝업 존
-	@RequestMapping(value="/zone", method=RequestMethod.GET)
+	@RequestMapping(value="/zone.do", method=RequestMethod.GET)
 	public ModelAndView zone(HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -184,7 +184,7 @@ public class PopupManagementController {
 		return mv;
 	}
 	// 베너
-	@RequestMapping(value="/banner", method=RequestMethod.GET)
+	@RequestMapping(value="/banner.do", method=RequestMethod.GET)
 	public ModelAndView banner(HttpSession session) throws Exception{
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {

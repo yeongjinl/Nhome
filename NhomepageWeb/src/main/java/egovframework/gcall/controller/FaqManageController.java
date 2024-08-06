@@ -46,7 +46,7 @@ public class FaqManageController {
 	@Resource(name = "BoardService")
 	private BoardService boardService;
 
-	@RequestMapping(value="/list", method=RequestMethod.GET)
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	public ModelAndView list(
 			@RequestParam(value = "confId", defaultValue = "10") String confId,
 			@RequestParam(value = "curPage", defaultValue = "1") Integer curPage,
@@ -204,7 +204,7 @@ public class FaqManageController {
 		return mv;
 
 	}*/
-	@RequestMapping(value="/detail")
+	@RequestMapping(value="/detail.do")
 	public ModelAndView detail(HttpServletRequest req,HttpSession session) throws Exception {
 		ModelAndView mv = new ModelAndView();
 		if(session.getAttribute("ss_user_info")!=null) {
@@ -460,7 +460,7 @@ public class FaqManageController {
 			mList=null;
 	}*/
 
-	@RequestMapping(value="/fileDelete")
+	@RequestMapping(value="/fileDelete.do")
 	public void fileDelete(HttpServletRequest req,HttpServletResponse res) throws Exception{
 		//filedelete는 배치로 돌려서 삭제할 예정
 		/*System.out.println("asd"+req.getParameter("fileName"));

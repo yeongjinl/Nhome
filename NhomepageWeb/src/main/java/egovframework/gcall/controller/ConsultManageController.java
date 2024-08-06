@@ -665,6 +665,7 @@ public class ConsultManageController {
 					iList = imageUploadService.imageInfoGet(request.getParameter("confId"));
 					//개발용
 					String realFolder = request.getSession().getServletContext().getRealPath("")+iList.get(0).get("UPLOAD_PATH");
+					
 					List<MultipartFile> mList = request.getFiles("file");
 					SimpleDateFormat format1 = new SimpleDateFormat("yyyyMMddHHmmss");
 					Date date = new Date();
