@@ -135,8 +135,7 @@ public class AdminController {
 				}
 				lgnStatus = LoginStatus.LOGIN;
 				LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID,loginID, ipAddress, lgnStatus, requestURI).build();
-				//yj일단주석(테이블 미생성)
-				//adminService.lgnHstr2Insert(lgnHstr);
+				adminService.lgnHstr2Insert(lgnHstr);
 				
 				adminService.passwordCountCheckInitialize(loginID);
 			} else {
@@ -218,8 +217,7 @@ public class AdminController {
 				
 				lgnStatus = LoginStatus.LOGIN_FAILURE;
 				LgnHistoryDTO2 lgnHstr = new LgnHistoryDTO2.LgnHistoryDTO2Builder(lgnHstdID,loginID, ipAddress, lgnStatus, requestURI).build();
-				//yj일단주석(테이블 미생성)
-				//adminService.lgnHstr2Insert(lgnHstr);
+				adminService.lgnHstr2Insert(lgnHstr);
 			}
 		}
 		
@@ -383,7 +381,7 @@ public class AdminController {
 	}
 
 	// 방문 통계 요청 로직
-	@RequestMapping(value="/statRetrieve", method=RequestMethod.POST)
+	@RequestMapping(value="/statRetrieve.do", method=RequestMethod.POST)
 	public void statRetrieve(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		String sql_id = request.getParameter("sql_id") + "";
