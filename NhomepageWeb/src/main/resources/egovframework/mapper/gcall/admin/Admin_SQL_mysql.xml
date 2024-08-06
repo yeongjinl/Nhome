@@ -310,7 +310,7 @@
 			'' LOGIN_TIME,
 			'' LOGOUT_DATE,
 			'' LOGOUT_TIME,
-			TO_CHAR(SYSDATE,'YYYYMMDD') PASSWORD_DATE,
+			DATE_FORMAT(SYSDATE(),'%Y%m%d') PASSWORD_DATE,
 			IFNULL(TEAM_CD,'') USER_DEPT,
 			'0' CONSULT_AUTH,
 			'0' BODO_AUTH,
@@ -379,7 +379,7 @@
 				<if test="option == 2">
 				AND  APP.USER_NAME LIKE  CONCAT('%',#{search},'%')
 				</if>
-		)
+		) A
 		WHERE rn BETWEEN #{startlist} AND #{listsize}
 	</select>
 	<!-- 서브관리자 디테일 -->
