@@ -437,7 +437,7 @@ public class ContestManageController {
 	}
 	
 	
-	@RequestMapping(value="/fileDelete.do")
+	@RequestMapping(value="/fileDelete")
 	public void fileDelete(HttpServletRequest req,HttpServletResponse res) throws Exception{
 		//filedelete는 배치로 돌려서 삭제할 예정
 		/*System.out.println("asd"+req.getParameter("fileName"));
