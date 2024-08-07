@@ -64,7 +64,7 @@ public class DataManageController {
    @Resource(name = "BoardService")
 	private BoardService boardService;
 
-   @RequestMapping(value="/list")
+   @RequestMapping(value="/list.do")
    public ModelAndView list(ContactDbDTO cbDTO, HttpServletRequest request, HttpSession session) throws Exception{
       ModelAndView mv = new ModelAndView();
       if(session.getAttribute("ss_user_info")!=null) {
@@ -148,7 +148,7 @@ public class DataManageController {
       }
       return mv;
    }
-   @RequestMapping(value="/reg")
+   @RequestMapping(value="/reg.do")
    public ModelAndView reg(HttpSession session) throws Exception{
       ModelAndView mv = new ModelAndView();
       if(session.getAttribute("ss_user_info")!=null) {
@@ -170,7 +170,7 @@ public class DataManageController {
       }
       return mv;
    }
-   @RequestMapping(value="/regInsert", method=RequestMethod.POST)
+   @RequestMapping(value="/regInsert.do", method=RequestMethod.POST)
    public ModelAndView regInsert(ContactDbDTO contact,
 		   HttpServletRequest request,
 		   @RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
@@ -244,7 +244,7 @@ public class DataManageController {
       }
       return mv;
    }
-   @RequestMapping(value="/regUpdate", method=RequestMethod.GET)
+   @RequestMapping(value="/regUpdate.do", method=RequestMethod.GET)
    public ModelAndView regUpdate(HttpSession session) throws Exception{
       Map<String,Object> sessionUI = (Map<String,Object>)session.getAttribute("ss_user_info");
       Map<String,Object> authUI = (Map<String,Object>)session.getAttribute("ss_user_auth");
@@ -260,7 +260,7 @@ public class DataManageController {
       }
       return mv;
    }
-   @RequestMapping(value="/approval", method=RequestMethod.GET)
+   @RequestMapping(value="/approval.do", method=RequestMethod.GET)
    public ModelAndView approval(HttpSession session,HttpServletRequest req) throws Exception{
       ModelAndView mv = new ModelAndView();
       if(session.getAttribute("ss_user_info")!=null) {
@@ -283,7 +283,7 @@ public class DataManageController {
       }
       return mv;
    }
-   @RequestMapping(value="proveView")
+   @RequestMapping(value="proveView.do")
    public ModelAndView proveView(ContactDbDTO cbDTO, HttpServletRequest request, HttpServletResponse resp,HttpSession session) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -311,7 +311,7 @@ public class DataManageController {
       mv.setViewName("egovframework/gcall/dataManage/knowledgeListTable");
       return mv;
    }
-   @RequestMapping(value="dbGubun", method=RequestMethod.GET)
+   @RequestMapping(value="dbGubun.do", method=RequestMethod.GET)
    @ResponseBody
    public void dbGubun(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -330,7 +330,7 @@ public class DataManageController {
    }
    //기관분류
    //기관대분류
-   @RequestMapping(value="classGubunL", method=RequestMethod.GET)
+   @RequestMapping(value="classGubunL.do", method=RequestMethod.GET)
    @ResponseBody
    public void classGubunL(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -346,7 +346,7 @@ public class DataManageController {
 		}
    }
  //기관중분류
-   @RequestMapping(value="classGubunM", method=RequestMethod.GET)
+   @RequestMapping(value="classGubunM.do", method=RequestMethod.GET)
    @ResponseBody
    public void classGubunM(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -362,7 +362,7 @@ public class DataManageController {
 		}
    }
  //기관소분류
-   @RequestMapping(value="classGubunS", method=RequestMethod.GET)
+   @RequestMapping(value="classGubunS.do", method=RequestMethod.GET)
    @ResponseBody
    public void classGubunS(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -379,7 +379,7 @@ public class DataManageController {
    }
    //업무분류
    //업무대분류
-   @RequestMapping(value="conGubunL", method=RequestMethod.GET)
+   @RequestMapping(value="conGubunL.do", method=RequestMethod.GET)
    @ResponseBody
    public void conGubunL(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -395,7 +395,7 @@ public class DataManageController {
 		}
    }
  //업무중분류
-   @RequestMapping(value="conGubunM", method=RequestMethod.GET)
+   @RequestMapping(value="conGubunM.do", method=RequestMethod.GET)
    @ResponseBody
    public void conGubunM(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -411,7 +411,7 @@ public class DataManageController {
 		}
    }
  //업무소분류
-   @RequestMapping(value="conGubunS", method=RequestMethod.GET)
+   @RequestMapping(value="conGubunS.do", method=RequestMethod.GET)
    @ResponseBody
    public void conGubunS(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
       List<HashMap<String,Object>> cbList = new ArrayList<HashMap<String,Object>>();
@@ -427,7 +427,7 @@ public class DataManageController {
 		}
    }
    //업무구분
-   @RequestMapping(value="flagGubun", method=RequestMethod.GET)
+   @RequestMapping(value="flagGubun.do", method=RequestMethod.GET)
    @ResponseBody
    public void flagGubun(ContactDbDTO cbDTO,HttpServletResponse resp) throws Exception{
 	  List<HashMap<String,Object>> flagList = new ArrayList<HashMap<String,Object>>();
@@ -449,7 +449,7 @@ public class DataManageController {
 		}
    }
  //업무구분 팝업
-   @RequestMapping(value="/popup", method=RequestMethod.GET)
+   @RequestMapping(value="/popup.do", method=RequestMethod.GET)
    public ModelAndView popup() throws Exception{
       System.out.println("popup start!!");
       ModelAndView mv = new ModelAndView();
@@ -459,7 +459,7 @@ public class DataManageController {
    }
 
    //업무분류 대중소 팝업 가져오기 popupflag
-   @RequestMapping(value="/popupflag", method=RequestMethod.GET)
+   @RequestMapping(value="/popupflag.do", method=RequestMethod.GET)
    public ModelAndView popupflag(HttpServletRequest req) throws Exception{
       System.out.println("popupflag start");
       ModelAndView mv = new ModelAndView();
@@ -499,7 +499,7 @@ public class DataManageController {
 
    //기관분류 검색 팝업 화면 띄우기 popupClass
    //업무구분 팝업
-   @RequestMapping(value="/popupClass", method=RequestMethod.GET)
+   @RequestMapping(value="/popupClass.do", method=RequestMethod.GET)
    public ModelAndView popupClass() throws Exception{
       System.out.println("popupClass start!!");
       ModelAndView mv = new ModelAndView();
@@ -509,7 +509,7 @@ public class DataManageController {
    }
 
    //기관분류 대중소 팝업 가져오기 popupClass
-   @RequestMapping(value="/classPopup", method=RequestMethod.GET)
+   @RequestMapping(value="/classPopup.do", method=RequestMethod.GET)
    public ModelAndView classPopup(HttpServletRequest req) throws Exception{
       System.out.println("classPopup start");
       ModelAndView mv = new ModelAndView();
@@ -544,7 +544,7 @@ public class DataManageController {
    }
    //지식디비 리스트 디테일
  //지식DB 상세보기
-   @RequestMapping(value="listDetail")
+   @RequestMapping(value="listDetail.do")
    public ModelAndView listDetail(HttpServletRequest request, HttpServletResponse response) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -601,7 +601,7 @@ public class DataManageController {
 	
 	// 지식db 네이버 연계
 	// 네이버 승인
-	@RequestMapping(value = "naverProve", method = RequestMethod.POST)
+	@RequestMapping(value = "naverProve.do", method = RequestMethod.POST)
 	public void naverProve(
 			HttpServletRequest req, 
 			HttpServletResponse res,
@@ -637,7 +637,7 @@ public class DataManageController {
 	}
 
    //네이버 승인 거부 naverDenied
-   @RequestMapping(value="naverDenied", method=RequestMethod.POST)
+   @RequestMapping(value="naverDenied.do", method=RequestMethod.POST)
    public void naverDenied(ContactDbDTO dDTO, HttpServletRequest req, HttpServletResponse resp) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -676,7 +676,7 @@ public class DataManageController {
    }
 
    //DB PROVE_STATE 거부로 변경하기 dbupdate
-   @RequestMapping(value="dbupdate", method=RequestMethod.POST)
+   @RequestMapping(value="dbupdate.do", method=RequestMethod.POST)
    public void dbupdate(ContactDbDTO dDTO, HttpServletRequest req, HttpServletResponse resp) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -705,7 +705,7 @@ public class DataManageController {
    }
 
    //이력보기 getHislist
-   @RequestMapping(value="getHislist")
+   @RequestMapping(value="getHislist.do")
    public ModelAndView getHislist(HttpServletRequest request, HttpServletResponse response) throws Exception{
       ContactDbDTO dDTO = new ContactDbDTO();
       ModelAndView mv = new ModelAndView();
@@ -735,7 +735,7 @@ public class DataManageController {
    }
 
    //이력보기 상세 hisDetail
-   @RequestMapping(value="hisDetail")
+   @RequestMapping(value="hisDetail.do")
    public ModelAndView hisDetail(HttpServletRequest request, HttpServletResponse response) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -751,7 +751,7 @@ public class DataManageController {
    }
 
 
-   @RequestMapping(value="updateknowdb")
+   @RequestMapping(value="updateknowdb.do")
    public ModelAndView updateknowdb(HttpServletRequest request, HttpServletResponse response) throws Exception{
       ModelAndView mv = new ModelAndView();
 
@@ -790,7 +790,7 @@ public class DataManageController {
 
 
 
-   @RequestMapping(value="/updateProc", method=RequestMethod.POST)
+   @RequestMapping(value="/updateProc.do", method=RequestMethod.POST)
    public ModelAndView updateProc(ContactDbDTO contact,
 		   @RequestParam(value="FILE_NAME",required=false) String[] FILE_NAME,
 			@RequestParam(value="FILE_SORT",required=false) String[] FILE_SORT,
@@ -858,7 +858,7 @@ public class DataManageController {
 
 
    // 네이버 조회
-   @RequestMapping(value="selectNaver" , method=RequestMethod.GET)
+   @RequestMapping(value="selectNaver.do" , method=RequestMethod.GET)
    public void selectNaver(ContactDbDTO dDTO) throws Exception {
       System.out.println("selectNaver start !");
       //StringUtil st = new StringUtil();
