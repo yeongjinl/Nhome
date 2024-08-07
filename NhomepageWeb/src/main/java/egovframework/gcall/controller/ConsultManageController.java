@@ -494,7 +494,7 @@ public class ConsultManageController {
 
 	@RequestMapping(value="/fileAdd.do")
 	public void fileAdd(MultipartHttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		System.out.println(request.getFiles("file"));
 		//HP_BOARD_ADMIN에서 테이블 조회 / 파일 경로
 			String confId = request.getParameter("confId");
 			System.out.println("컨프아이디:"+confId);

@@ -28,7 +28,7 @@ public class BoardReplyController {
 	@Resource(name = "BoardReplyService")
 	private BoardReplyService boardReplyService;
 	
-	@RequestMapping(value="/list", method=RequestMethod.GET)
+	@RequestMapping(value="/list.do", method=RequestMethod.GET)
 	public ModelAndView list(HttpServletRequest req,
 			@RequestParam(value = "curPage", defaultValue = "1") Integer curPage,
 			@RequestParam(value="selSearch" ,defaultValue="0") String selSearch,
@@ -71,7 +71,7 @@ public class BoardReplyController {
 		mv.addObject("curPage",curPage);
 		return mv;
 	}
-	@RequestMapping(value="/insert", method=RequestMethod.POST)
+	@RequestMapping(value="/insert.do", method=RequestMethod.POST)
 	public void insert(HttpServletRequest req,HttpServletResponse resp) throws Exception {
 		HashMap<String, Object> hMap = new HashMap<>();
 		//int boardReplySeq = boardReplyService.boardReplySequence();
@@ -96,7 +96,7 @@ public class BoardReplyController {
 		}
 		
 	}
-	@RequestMapping(value="/update", method=RequestMethod.POST)
+	@RequestMapping(value="/update.do", method=RequestMethod.POST)
 	public void update(HttpServletRequest req,HttpServletResponse resp) throws Exception {
 		HashMap<String, Object> hMap = new HashMap<>();
 		hMap.put("BOARD_NUM", req.getParameter("boardNum"));

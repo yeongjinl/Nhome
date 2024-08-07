@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardReplyDAO">
+
+	<!-- sjs 수정부분 -->
+	<select id="boardReplyList" parameterType="PaginationDTO" resultType="map">
+	SELECT *
+	FROM (
+		SELECT
+			ROW_NUMBER() OVER(ORDER BY REPLY_SEQ DESC) AS rn,
+			REPLY_SEQ,
+			BOARD_NUM,
+			CONF_ID,
+			USER_ID,
+			REPLY_WRITER,
+			REPLY_CONTENTS,
+			REPLY_PW,
+			BOARD_REG_DATE
+		FROM
+			DB_HOMEPAGE.HP_BOARD_REPLY
+		WHERE
+			<if test="selSearch==0">
+			CONF_ID=#{confId} AND BOARD_NUM=#{boardNum}
+			</if>
+			<if test="selSearch==1">
+			CONF_ID = #{confId} AND BOARD_NUM=#{boardNum} AND  REPLY_WRITER like CONCAT('%',#{searchWord},'%')
+			</if>
+			<if test="selSearch==2">
+			CONF_ID = #{confId} AND BOARD_NUM=#{boardNum} AND  REPLY_CONTENTS like CONCAT('%',#{searchWord},'%')
+			</if>
+	) a
+	WHERE rn BETWEEN #{startIndex} AND #{pageSize}
+	</select>
+	<select id="boardReplyListCount" parameterType="map" resultType="int">
+		SELECT
+			COUNT(*) as COUNTS
+		FROM
+			DB_HOMEPAGE.HP_BOARD_REPLY A
+		WHERE
+			<if test="selSearch==0">
+			A.CONF_ID = #{CONF_ID} AND A.BOARD_NUM=#{BOARD_NUM}
+			</if>
+			<if test="selSearch==1">
+			A.CONF_ID = #{CONF_ID} AND A.BOARD_NUM=#{BOARD_NUM} AND A.REPLY_WRITER like CONCAT('%',#{searchWord},'%')
+			</if>
+			<if test="selSearch==2">
+			A.CONF_ID = #{CONF_ID} AND A.BOARD_NUM=#{BOARD_NUM} AND  A.REPLY_CONTENTS like CONCAT('%',#{searchWord},'%')
+			</if>
+	</select>
+	<insert id="boardReplyInsert" parameterType="map">
+		INSERT
+		INTO
+		DB_HOMEPAGE.HP_BOARD_REPLY
+		(
+			REPLY_SEQ,
+			BOARD_NUM,
+			CONF_ID,
+			USER_ID,
+			REPLY_WRITER,
+			REPLY_CONTENTS,
+			REPLY_PW,
+			BOARD_REG_DATE
+		)
+		VALUES
+		(
+			(SELECT IFNULL(MAX(REPLY_SEQ),0)+1 AS REPLY_SEQ FROM DB_HOMEPAGE.HP_BOARD_REPLY),
+			#{BOARD_NUM},
+			#{CONF_ID},
+			#{USER_ID},
+			#{REPLY_WRITER},
+			#{REPLY_CONTENTS},
+			#{REPLY_PW},
+			now()
+		)
+
+	</insert>
+	
+	<select id="boardReplySequence" resultType="int">
+		SELECT IFNULL(MAX(REPLY_SEQ),0)+1 AS REPLY_SEQ FROM DB_HOMEPAGE.HP_BOARD_REPLY
+	</select>
+	
+	<update id="boardReplyUpdate" parameterType="map">
+	 UPDATE
+	 	DB_HOMEPAGE.HP_BOARD_REPLY
+	 SET
+		USER_ID = #{USER_ID},
+		REPLY_WRITER = #{REPLY_WRITER},
+		REPLY_CONTENTS = #{REPLY_CONTENTS},
+		BOARD_REG_DATE = SYSDATE
+	WHERE
+		REPLY_SEQ = #{REPLY_SEQ}
+		AND
+		CONF_ID = #{CONF_ID}
+		AND
+		BOARD_NUM = #{BOARD_NUM}
+		<!-- AND
+		REPLY_PW = #{REPLY_PW} -->
+
+	</update>
+</mapper>

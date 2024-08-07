@@ -56,6 +56,9 @@ $(document).ready(function() {
 	if((day+"").length <2) {
 		day="0"+day;
 	}
+	if((month+"").length <2) {
+		month="0"+month;
+	}
 	var nowDate = year + "-" + month + "-" + day;
 	//게시날짜
 	document.getElementById("tStartDate").value = nowDate
