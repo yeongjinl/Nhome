@@ -62,62 +62,62 @@
 		<c:set var="sessionAdminTopMenuTitle" value="" />
 
 		<script>
-	        var leftSideBoardBarRender = "<li class='ttl'>${fn:escapeXml(leftSideBoardBarTitle)}</li>;"
-	        var leftSideNoticeBarRender = "<li class='ttl'>${fn:escapeXml(leftSideNoticeBarTitle)}</li>;"
-	        var leftSideOtherBarRender = "<li class='ttl'>${fn:escapeXml(leftSideOtherBarTitle)}</li>;"
-	        var leftSideSiteBarRender = "<li class='ttl'>${fn:escapeXml(leftSideSiteBarTitle)}</li>;"
-	        var leftDataSiteBarRender = "<li class='ttl'>${fn:escapeXml(leftDataSiteBarTitle)}</li>;"
-	        var leftSideSubBarRender = "<li class='ttl'>${fn:escapeXml(leftSideSubBarTitle)}</li>;"
-	        var sessionAdminTopMenuRender = "${fn:escapeXml(sessionAdminTopMenuTitle)}"
+	        var leftSideBoardBarRender = "<li class='ttl'>${fn:escapeXml(leftSideBoardBarTitle)}</li>";
+	        var leftSideNoticeBarRender = "<li class='ttl'>${fn:escapeXml(leftSideNoticeBarTitle)}</li>";
+	        var leftSideOtherBarRender = "<li class='ttl'>${fn:escapeXml(leftSideOtherBarTitle)}</li>";
+	        var leftSideSiteBarRender = "<li class='ttl'>${fn:escapeXml(leftSideSiteBarTitle)}</li>";
+	        var leftDataSiteBarRender = "<li class='ttl'>${fn:escapeXml(leftDataSiteBarTitle)}</li>";
+	        var leftSideSubBarRender = "<li class='ttl'>${fn:escapeXml(leftSideSubBarTitle)}</li>";
+	        var sessionAdminTopMenuRender = "${fn:escapeXml(sessionAdminTopMenuTitle)}";
 	
 			//게시물 관리 메뉴
 			if(("${sUserType}"=="0")||("${CONSULT_AUTH}"=="1")||("${BODO_AUTH}"=="1")||("${NOTICE_AUTH}"=="1")||("${PROMOTION_AUTH}"=="1")||("${PHOTO_AUTH}"=="1")||("${PHOTO_AUTH}"=="1")||("${FREEBOARD_AUTH}"=="1")||("${CONTEST_AUTH}"=="1")||("${FAQ_AUTH}"=="1")||("${STORY110_AUTH}"=="1")){
 				if("${CONSULT_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/consult/list.do'>상담사연관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/consult/list.do'>상담사연관리</a></li>";
 				}
 				if("${BODO_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/bodo/list.do'>보도자료관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/bodo/list.do'>보도자료관리</a></li>";
 				}
 				if("${NOTICE_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/notice/list.do'>공지사항관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/notice/list.do'>공지사항관리</a></li>";
 				}
 				if("${PROMOTION_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/promotion/list.do'>홍보자료관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/promotion/list.do'>홍보자료관리</a></li>";
 				}
 				if("${PHOTO_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/photo/list.do'>포토갤러리관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/photo/list.do'>포토갤러리관리</a></li>";
 				}
 				if("${FREEBOARD_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/freeBoard/list.do'>자유게시판관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/freeBoard/list.do'>자유게시판관리</a></li>";
 				}
 				if("${CONTEST_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/contest/list.do'>공모전관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/contest/list.do'>공모전관리</a></li>";
 				}
 				if("${FAQ_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/faq/list.do'>자주묻는질문관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/faq/list.do'>자주묻는질문관리</a></li>";
 				}
 				if("${STORY110_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideBoardBarRender+="<li><a href='/story110/list.do'>110이야기 관리</a></li>;"
+					leftSideBoardBarRender+="<li><a href='/story110/list.do'>110이야기 관리</a></li>";
 				}
-				sessionAdminTopMenuRender+="<li><a href='/top/topBoard.do'>게시물관리</a></li>"
+				sessionAdminTopMenuRender+="<li><a href='/top/topBoard.do'>게시물관리</a></li>";
 			}
 			//공지 관리 메뉴
 			if(("${sUserType}"=="0")||("${POPUP_AUTH}"=="1")||("${POPUPZONE_AUTH}"=="1")||("${BANNER_AUTH}"=="1")){
 				if("${POPUP_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideNoticeBarRender+="<li><a href='/popup/popup.do'>팝업관리</a></li>;"
+					leftSideNoticeBarRender+="<li><a href='/popup/popup.do'>팝업관리</a></li>";
 				}
 				if("${POPUPZONE_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideNoticeBarRender+="<li><a href='/popup/zone.do'>팝업존관리</a></li>;"
+					leftSideNoticeBarRender+="<li><a href='/popup/zone.do'>팝업존관리</a></li>";
 				}
 				if("${BANNER_AUTH}"=="1"||("${sUserType}"=="0")){
-					leftSideNoticeBarRender+="<li><a href='/popup/banner.do'>배너관리</a></li>;"
+					leftSideNoticeBarRender+="<li><a href='/popup/banner.do'>배너관리</a></li>";
 				}
 				if("${POPUP_AUTH}"=="1"){
-					sessionAdminTopMenuRender+="<li><a href='/popup/popup.do'>공지관리</a></li>"
+					sessionAdminTopMenuRender+="<li><a href='/popup/popup.do'>공지관리</a></li>";
 				} else if("${POPUPZONE_AUTH}"=="1"){
-					sessionAdminTopMenuRender+="<li><a href='/popup/zone.do'>공지관리</a></li>"
+					sessionAdminTopMenuRender+="<li><a href='/popup/zone.do'>공지관리</a></li>";
 				} else if("${BANNER_AUTH}"=="1"){
-					sessionAdminTopMenuRender+="<li><a href='/popup/banner.do'>공지관리</a></li>"
+					sessionAdminTopMenuRender+="<li><a href='/popup/banner.do'>공지관리</a></li>";
 				}
 			}
 			
