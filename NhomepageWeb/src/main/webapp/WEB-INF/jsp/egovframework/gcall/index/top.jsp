@@ -137,6 +137,7 @@
 				}
 					sessionAdminTopMenuRender+="<li><a href='/severdata/list.do'>데이터 관리</a></li>";
 			}
+			
 			//사이트설정 메뉴
 			if(("${sUserType}"=="0")||("${CODE_AUTH}"=="1")){
 				if("${CODE_AUTH}"=="1"||("${sUserType}"=="0")){
