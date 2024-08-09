@@ -118,5 +118,12 @@
 	<mvc:view-controller path="/uss/ion/fbk/facebookSignin.do" view-name="egovframework/com/uss/ion/fbk/EgovFacebookSignin" />
 	<mvc:view-controller path="/uss/ion/fbk/facebookSignout.do" view-name="egovframework/com/uss/ion/fbk/EgovFacebookHome" />
 	-->
+	
+	<!-- Swagger 관련 설정 -->
+	<bean id="swaggerConfig" class="egovframework.com.cmm.config.SwaggerConfig"/>
+	
+	<mvc:resources location="classpath:/META-INF/resources/webjars/springfox-swagger-ui/" mapping="/swagger-ui/**"/>
+	<mvc:resources location="classpath:/META-INF/resources/webjars/springfox-swagger-ui/" mapping="/webjars/**"/>
+
 
 </beans>
