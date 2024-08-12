@@ -7,6 +7,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
+
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 import javax.annotation.Resource;
 
@@ -117,7 +122,7 @@ public class ApiController {
     			JSONObject jsonObj = (JSONObject) new JSONParser().parse(result);
     			JSONObject jsosMap = (JSONObject) jsonObj.get("returnObject");
     			
-    			insertReturn(type, jsonObj, jsosMap);
+    			insertReturn(type, date_from, jsonObj, jsosMap);
             	
             } catch (ParseException e) {
             	//e.printStackTrace();
@@ -165,7 +170,7 @@ public class ApiController {
         return result.toString();
     }
     
-    private void insertReturn(String type, JSONObject jsonObj, JSONObject jsosMap) throws Exception {
+    private void insertReturn(String type, String date_from, JSONObject jsonObj, JSONObject jsosMap) throws Exception {
     	
     	String requestId = (String) jsonObj.get("requestId");
     	
@@ -188,8 +193,22 @@ public class ApiController {
         	
         }else if(type.equals("top")) {			// 키워드 랭킹 연계
         	
-        	// JSONObject 데이터 중 List를 JSONArray에 넣어준다.
-			JSONArray jsonArr = (JSONArray) jsosMap.get("2023.09.22(금)");
+        	LocalDate date = LocalDate.parse(date_from, DateTimeFormatter.ISO_DATE);
+
+        	DateTimeFormatter formatter;
+        	String formatteDateTime;
+        	
+        	String dayOfWeekInKorean;
+        	
+        	formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        	formatteDateTime = date.format(formatter);
+        	dayOfWeekInKorean = date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.KOREAN);
+        	
+        	// 입력한 날짜(jsonArray의 Key값)
+        	String inputDateFrom = formatteDateTime + "(" + dayOfWeekInKorean + ")";
+        	
+        	//JSONArray jsonArr = (JSONArray) jsosMap.get("2023.09.22(금)");
+        	JSONArray jsonArr = (JSONArray) jsosMap.get(inputDateFrom);
 			
 			for(Object arr : jsonArr) {
 				JSONObject obj = (JSONObject) arr; // JSONArray 데이터를 하나씩 가져와 JSONObject로 변환해준다.
