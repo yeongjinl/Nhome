@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TestApiDAO">
+
+	<!-- 키워드 랭킹 연계 적재 -->
+	<insert id="keywordRankInfoInsert" parameterType="egovframework.gcall.dto.ApiKeywordRankDTO">
+		INSERT INTO DB_HOMEPAGE.TB_KYWD_RANK_INFO
+		(
+			KYWD_RANK_SEQ,
+			RQST_ID,
+			KYWD,
+			WGVL_VL,
+			PRORD,
+			FRQ,
+			BFR_RANK,
+			SCR,
+			LAST_OTPT_YMD
+		)
+		VALUES
+		(
+			(SELECT SEQ FROM (SELECT IFNULL(MAX(KYWD_RANK_SEQ),0)+1 AS SEQ FROM DB_HOMEPAGE.TB_KYWD_RANK_INFO) A),
+			#{requestId},
+			#{term},
+			#{weight},
+			#{rank},
+			#{df},
+			#{beforeRank},
+			#{score},
+			SYSDATE()
+		)
+	</insert>
+  
+</mapper>
