@@ -52,6 +52,17 @@ public class Globals {
 
 	// G4C 연결용 IP (localhost)
 	public static final String LOCAL_IP = EgovProperties.getProperty("Globals.LocalIp");
+	
+	//모범상담사례 연계 URL
+	public static final String API_TB_LNAGUAGE_RESOURCE = EgovProperties.getProperty("api.tbLnaguageResource");
+	//상담 키워드 트렌드 연계
+	public static final String API_DAY = EgovProperties.getProperty("api.day");
+	//키워드 연관어 연계
+	public static final String API_RESULT = EgovProperties.getProperty("api.result");
+	//급상승 키워드 연계
+	public static final String API_RISING = EgovProperties.getProperty("api.rising");
+	//키워드 랭킹 연계
+	public static final String API_TOP = EgovProperties.getProperty("api.top");
 
 
 

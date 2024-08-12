@@ -18,10 +18,16 @@ import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import egovframework.com.cmm.service.Globals;
+import egovframework.com.utl.fcc.service.EgovStringUtil;
 import egovframework.gcall.dto.TestApiDTO;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 
 
@@ -46,8 +52,8 @@ import egovframework.gcall.dto.TestApiDTO;
 
 
 @RestController
-@RequestMapping(value = "/apitest")
-public class TestApiController {
+@RequestMapping(value = "/api")
+public class ApiController {
 	
 	
 	@GetMapping("/test")
@@ -55,16 +61,46 @@ public class TestApiController {
 		return "test";
 	}
 
-	
-    @GetMapping("/apiTest.do")
-    public ResponseEntity<String> callForecastApi( /*@RequestParam(value="base_time") String baseTime */ ){
+
+	@ApiOperation(value = "api호출 ")
+    @GetMapping("/{type}.do")
+    public ResponseEntity<String> callForecastApi(@ApiParam(value = "tbLnaguageResource-모범상담사례,day-상담키워드,result-키워드연관어,rising-급상승키워드,top-키워드랭킹") @PathVariable("type")String type
+    		, @ApiParam(value = "기관코드") @RequestParam(value="intt_cd", defaultValue="1390000") String intt_cd
+    		, @ApiParam(value = "시작일자") @RequestParam(value="date_from", required = false) String date_from
+    		, @ApiParam(value = "일수") @RequestParam(value="date_duration", required = false) String date_duration){
     	
         HttpURLConnection urlConnection = null;
         InputStream stream = null;
         String result = null;
 
-        String urlStr = "http://192.168.90.91:8081/api/dashboard/rank/top?intt_cd=1390000&date_from=2023-09-22&day_count=1&top_rank=5&rank_type=RISING";
-
+        String urlStr = "";
+        String paramStr = "?index_names=tb_cons_meta_hstr";
+        
+        if(type.equals("tbLnaguageResource")) {
+        	urlStr = Globals.API_TB_LNAGUAGE_RESOURCE;
+        }else if(type.equals("day")) {
+        	urlStr = Globals.API_DAY;
+        }else if(type.equals("result")) {
+        	urlStr = Globals.API_RESULT;
+        }else if(type.equals("rising")) {
+        	urlStr = Globals.API_RISING;
+        }else if(type.equals("top")) {
+        	urlStr = Globals.API_TOP;
+        }
+        
+        if(!EgovStringUtil.isEmpty(intt_cd)) {
+        	paramStr += "&intt_cd=" + intt_cd;
+        }
+        if(!EgovStringUtil.isEmpty(date_from)) {
+        	paramStr += "&date_from=" + date_from;
+        }
+        if(!EgovStringUtil.isEmpty(date_duration)) {
+        	paramStr += "&date_duration=" + date_duration;
+        }
+        
+        urlStr = urlStr+ paramStr;
+        System.out.println(urlStr);
+        
         try {
             URL url = new URL(urlStr);
 
@@ -78,28 +114,7 @@ public class TestApiController {
     			JSONObject jsonObj = (JSONObject) new JSONParser().parse(result);
     			JSONObject jsosMap = (JSONObject) jsonObj.get("returnObject");
     			
-    			// JSONObject 데이터 중 List를 JSONArray에 넣어준다.
-    			JSONArray jsonArr = (JSONArray) jsosMap.get("2023.09.22(금)");
-    						    
-    			//List<TestApiDTO> testApiList = new ArrayList<TestApiDTO>(); // 데이터를 저장할 List
-    			for(Object arr : jsonArr) {
-    				JSONObject obj = (JSONObject) arr; // JSONArray 데이터를 하나씩 가져와 JSONObject로 변환해준다.
-    			    
-    			    // 값을 VO에 넣어준다.
-    				
-    				TestApiDTO testApiDto = new TestApiDTO();
-    				
-    				testApiDto.setScore((double) obj.get("score"));
-    				testApiDto.setDf((double) obj.get("df"));
-    				testApiDto.setWeight((double) obj.get("weight"));
-    				testApiDto.setRank((double) obj.get("rank"));
-    				testApiDto.setTerm((String) obj.get("term"));
-    				testApiDto.setBeforeRank((double) obj.get("beforeRank"));
-    				
-    				System.out.println("test : " + testApiDto.toString());
-    				//testApiList.add(testApiDto); // list에 추가해준다.
-    				
-    			}
+    			insertReturn(type, jsosMap);
             	
             } catch (ParseException e) {
             	//e.printStackTrace();
@@ -145,6 +160,33 @@ public class TestApiController {
         br.close();
 
         return result.toString();
+    }
+    
+    private void insertReturn(String type, JSONObject jsosMap) {
+    	if(type.equals("top")) {
+	    	// JSONObject 데이터 중 List를 JSONArray에 넣어준다.
+			JSONArray jsonArr = (JSONArray) jsosMap.get("2023.09.22(금)");
+						    
+			//List<TestApiDTO> testApiList = new ArrayList<TestApiDTO>(); // 데이터를 저장할 List
+			for(Object arr : jsonArr) {
+				JSONObject obj = (JSONObject) arr; // JSONArray 데이터를 하나씩 가져와 JSONObject로 변환해준다.
+			    
+			    // 값을 VO에 넣어준다.
+				
+				TestApiDTO testApiDto = new TestApiDTO();
+				
+				testApiDto.setScore((double) obj.get("score"));
+				testApiDto.setDf((double) obj.get("df"));
+				testApiDto.setWeight((double) obj.get("weight"));
+				testApiDto.setRank((double) obj.get("rank"));
+				testApiDto.setTerm((String) obj.get("term"));
+				testApiDto.setBeforeRank((double) obj.get("beforeRank"));
+				
+				System.out.println("test : " + testApiDto.toString());
+				//testApiList.add(testApiDto); // list에 추가해준다.
+				
+			}
+    	}
     }
 	
 	
