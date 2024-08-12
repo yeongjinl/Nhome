@@ -1,14 +1,22 @@
 package egovframework.gcall.dto;
 
 public class TestApiDTO {
+	
+	private String requestId;
+	private String term;
 	private double score;
 	private double df;
 	private double weight;
 	private double rank;
-    private String term;
     private double beforeRank;
     
     
+	public String getRequestId() {
+		return requestId;
+	}
+	public String getTerm() {
+		return term;
+	}
 	public double getScore() {
 		return score;
 	}
@@ -21,14 +29,17 @@ public class TestApiDTO {
 	public double getRank() {
 		return rank;
 	}
-	public String getTerm() {
-		return term;
-	}
 	public double getBeforeRank() {
 		return beforeRank;
 	}
 	
 	
+	public void setRequestId(String requestId) {
+		this.requestId = requestId;
+	}
+	public void setTerm(String term) {
+		this.term = term;
+	}
 	public void setScore(double score) {
 		this.score = score;
 	}
@@ -41,20 +52,10 @@ public class TestApiDTO {
 	public void setRank(double rank) {
 		this.rank = rank;
 	}
-	public void setTerm(String term) {
-		this.term = term;
-	}
 	public void setBeforeRank(double beforeRank) {
 		this.beforeRank = beforeRank;
 	}
-	
-	
-	@Override
-	public String toString() {
-		return "TestApiDTO [score=" + score + ", df=" + df + ", weight=" + weight + ", rank=" + rank + ", term=" + term
-				+ ", beforeRank=" + beforeRank + "]";
-	}
-	
+    
 }
 
 

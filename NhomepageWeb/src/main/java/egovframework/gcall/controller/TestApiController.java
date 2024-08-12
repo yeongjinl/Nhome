@@ -7,9 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import egovframework.gcall.dto.TestApiDTO;
+import egovframework.gcall.service.TestApiService;
 
 
 
@@ -49,6 +49,9 @@ import egovframework.gcall.dto.TestApiDTO;
 @RequestMapping(value = "/apitest")
 public class TestApiController {
 	
+	@Resource(name = "TestApiService")
+	private TestApiService testApiService;
+
 	
 	@GetMapping("/test")
 	public String getTest() {
@@ -57,7 +60,7 @@ public class TestApiController {
 
 	
     @GetMapping("/apiTest.do")
-    public ResponseEntity<String> callForecastApi( /*@RequestParam(value="base_time") String baseTime */ ){
+    public ResponseEntity<String> callForecastApi( /*@RequestParam(value="base_time") String baseTime */ ) throws Exception{
     	
         HttpURLConnection urlConnection = null;
         InputStream stream = null;
@@ -77,6 +80,7 @@ public class TestApiController {
             	// Rest API로 가져온 데이터를 JSON Parsing해 JSONObject에 넣어준다.
     			JSONObject jsonObj = (JSONObject) new JSONParser().parse(result);
     			JSONObject jsosMap = (JSONObject) jsonObj.get("returnObject");
+    			String requestId = (String) jsonObj.get("requestId");
     			
     			// JSONObject 데이터 중 List를 JSONArray에 넣어준다.
     			JSONArray jsonArr = (JSONArray) jsosMap.get("2023.09.22(금)");
@@ -89,15 +93,18 @@ public class TestApiController {
     				
     				TestApiDTO testApiDto = new TestApiDTO();
     				
+    				testApiDto.setRequestId(requestId);
+    				testApiDto.setTerm((String) obj.get("term"));
     				testApiDto.setScore((double) obj.get("score"));
     				testApiDto.setDf((double) obj.get("df"));
     				testApiDto.setWeight((double) obj.get("weight"));
     				testApiDto.setRank((double) obj.get("rank"));
-    				testApiDto.setTerm((String) obj.get("term"));
     				testApiDto.setBeforeRank((double) obj.get("beforeRank"));
     				
     				System.out.println("test : " + testApiDto.toString());
     				//testApiList.add(testApiDto); // list에 추가해준다.
+    				
+    				testApiService.keywordRankInfoInsert(testApiDto);
     				
     			}
             	
