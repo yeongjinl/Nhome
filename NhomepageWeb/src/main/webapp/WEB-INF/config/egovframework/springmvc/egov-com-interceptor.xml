@@ -50,6 +50,7 @@
 			<mvc:mapping path="/story110/**"/>
 			<mvc:mapping path="/subManage/**"/>
 			<mvc:mapping path="/faq/**"/>
+			<mvc:mapping path="/api/**"/>
 			<bean id="adminInterceptor" class="egovframework.gcall.util.AdminInterceptor"/>
 		</mvc:interceptor>
 	</mvc:interceptors>
