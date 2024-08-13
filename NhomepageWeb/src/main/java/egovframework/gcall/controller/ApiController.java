@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import egovframework.com.cmm.service.Globals;
 import egovframework.com.utl.fcc.service.EgovStringUtil;
+import egovframework.gcall.dto.ApiCounselKeywordDTO;
 import egovframework.gcall.dto.ApiKeywordRankDTO;
 import egovframework.gcall.dto.ApiRisingSuddenKeywordDTO;
 import egovframework.gcall.service.ApiService;
@@ -70,7 +71,6 @@ public class ApiController {
     		, @ApiParam(value = "기관코드")	@RequestParam(value="intt_cd"		, defaultValue="1390000")	String intt_cd
     		, @ApiParam(value = "시작일자")	@RequestParam(value="date_from"		, required = false)			String date_from
     		, @ApiParam(value = "종료일자")	@RequestParam(value="date_to"		, required = false)			String date_to
-    		, @ApiParam(value = "일수")		@RequestParam(value="date_duration"	, required = false)			String date_duration
     		) throws Exception{
     	
         HttpURLConnection urlConnection = null;
@@ -101,10 +101,6 @@ public class ApiController {
         if(!EgovStringUtil.isEmpty(date_to)) {
         	paramStr += "&date_to=" + date_to;
         }
-        if(!EgovStringUtil.isEmpty(date_duration)) {
-        	paramStr += "&date_duration=" + date_duration;
-        }
-        
         
         if(type.equals("rising")) {
         	// 급상승 키워드 연계인경우 고정 파라미터 추가 (없으면 결과값 다르게 나옴)
@@ -113,8 +109,9 @@ public class ApiController {
         }else if(type.equals("top")) {
         	// 키워드 랭킹 연계인경우 고정 파라미터 추가 (없으면 결과값 다르게 나옴)
         	paramStr += "&day_count=1&top_rank=5&rank_type=RISING";
+        }else if(type.equals("day")) {
+        	paramStr += "&date_duration=1";
         }
-        
         
         urlStr = urlStr+ paramStr;
         System.out.println(urlStr);
@@ -201,8 +198,19 @@ public class ApiController {
     		
         }
     	else if(type.equals("day")) {			// 상담 키워드 트렌드 연계
-        	
-        	
+    		JSONArray jsonData  = (JSONArray) jsonMap.get("data");
+    		JSONArray jsonSum  = (JSONArray) jsonMap.get("sum");
+    		JSONArray jsonCategories  = (JSONArray) jsonMap.get("categories");
+    		
+    		System.out.println((double)jsonData.get(0));
+    		ApiCounselKeywordDTO counselKeywordDto = new ApiCounselKeywordDTO();
+			
+    		counselKeywordDto.setDmndId(requestId);
+    		counselKeywordDto.setRsltDat((double)jsonData.get(0));
+    		counselKeywordDto.setRsltSum((double)jsonSum.get(0));
+    		counselKeywordDto.setConsDt((String)jsonCategories.get(0));
+    		// 상담 키워드 트렌드 연계 적재
+			apiService.insertCounselKeyword(counselKeywordDto);
         	
         }
         else if(type.equals("result")) {		// 키워드 연관어 연계
@@ -284,6 +292,11 @@ public class ApiController {
 		}
     	
     }
+
+	private JSONObject jsonData(int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 	

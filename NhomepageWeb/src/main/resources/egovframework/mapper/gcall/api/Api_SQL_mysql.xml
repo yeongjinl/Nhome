@@ -3,7 +3,50 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ApiDAO">
 
-
+	<select id="counselKeywordCount" parameterType="egovframework.gcall.dto.ApiCounselKeywordDTO" resultType="int">
+      SELECT
+         COUNT(*) as COUNTS
+      FROM
+         DB_HOMEPAGE.TB_CONSULTATION_KEYWORD_RESULT A
+      WHERE
+         CONS_DT=DATE_FORMAT(#{consDt},'%Y%m%d')
+   </select>
+   
+	<!-- 상담 키워드 트렌드 연계 적재 -->
+	<insert id="insertCounselKeyword" parameterType="egovframework.gcall.dto.ApiCounselKeywordDTO">
+		INSERT INTO DB_HOMEPAGE.TB_CONSULTATION_KEYWORD_RESULT(
+			DMND_ID,
+			RSLT_DAT, 
+			RSLT_SUM, 
+			CONS_DT,
+			RGSR_ID,
+			RGSN_DTTM,
+			AMND_ID,
+			AMNT_DTTM
+		)
+		VALUES(
+			#{dmndId},
+			#{rsltDat},
+			#{rsltSum},
+			DATE_FORMAT(#{consDt},'%Y%m%d'),
+			#{dmndId},
+			DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'),
+			#{dmndId},
+			DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+		)
+	</insert>
+	
+	<update id="updateCounselKeyword" parameterType="egovframework.gcall.dto.ApiCounselKeywordDTO">
+		update DB_HOMEPAGE.TB_CONSULTATION_KEYWORD_RESULT
+		set DMND_ID =#{dmndId},
+			RSLT_DAT = #{rsltDat}, 
+			RSLT_SUM = #{rsltSum},
+			AMND_ID= #{dmndId},
+			AMNT_DTTM = DATE_FORMAT(NOW(),'%Y%m%d%H%i%s')
+		where CONS_DT = DATE_FORMAT(#{consDt},'%Y%m%d')
+			
+	</update>
+	
 	<!-- 급상승 키워드 연계 적재 -->
 	<insert id="risingSuddenKeyword" parameterType="egovframework.gcall.dto.ApiRisingSuddenKeywordDTO">
 		INSERT INTO DB_HOMEPAGE.TB_RISING_RESULT
