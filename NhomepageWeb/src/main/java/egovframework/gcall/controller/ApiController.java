@@ -33,6 +33,7 @@ import egovframework.gcall.dto.ApiRisingSuddenKeywordDTO;
 import egovframework.gcall.service.ApiService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
 
 
 /**
@@ -64,10 +65,10 @@ public class ApiController {
 
 
 	
-	@ApiOperation(value = "api호출 ")
+	@ApiOperation(value = "api호출 ", notes="type : {tbLnaguageResource-모범상담사례,day-상담키워드,result-키워드연관어,rising-급상승키워드,top-키워드랭킹}")
     @GetMapping("/{type}.do")
     public ResponseEntity<String> callForecastApi(
-    		  @ApiParam(value = "tbLnaguageResource-모범상담사례,day-상담키워드,result-키워드연관어,rising-급상승키워드,top-키워드랭킹") @PathVariable("type")String type
+    		  @ApiParam(value = "구분타입") @PathVariable("type")String type
     		, @ApiParam(value = "기관코드")	@RequestParam(value="intt_cd"		, defaultValue="1390000")	String intt_cd
     		, @ApiParam(value = "시작일자")	@RequestParam(value="date_from"		, required = false)			String date_from
     		, @ApiParam(value = "종료일자")	@RequestParam(value="date_to"		, required = false)			String date_to
