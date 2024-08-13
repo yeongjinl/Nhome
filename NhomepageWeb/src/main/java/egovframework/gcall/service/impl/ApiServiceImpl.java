@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import egovframework.gcall.dto.ApiKeywordRankDTO;
+import egovframework.gcall.dto.ApiRisingSuddenKeywordDTO;
 import egovframework.gcall.service.ApiService;
 
 import org.egovframe.rte.fdl.cmmn.EgovAbstractServiceImpl;
@@ -13,12 +14,15 @@ import org.egovframe.rte.fdl.cmmn.EgovAbstractServiceImpl;
 public class ApiServiceImpl extends EgovAbstractServiceImpl implements ApiService {
 
 	@Resource(name = "ApiDAO")
-	private ApiDAO ApiDAO;
+	private ApiDAO apiDAO;
 
 	@Override
-	public void keywordRankInfoInsert(ApiKeywordRankDTO apiKeywordRankDTO) throws Exception {
-		// 키워드 랭킹 연계 적재
-		ApiDAO.keywordRankInfoInsert(apiKeywordRankDTO);
+	public void risingSuddenKeyword(ApiRisingSuddenKeywordDTO risingSuddenKeywordDTO) throws Exception {
+		apiDAO.risingSuddenKeyword(risingSuddenKeywordDTO);
 	}
-	
+
+	@Override
+	public void keywordRankInsert(ApiKeywordRankDTO keywordRankDTO) throws Exception {
+		apiDAO.keywordRankInsert(keywordRankDTO);
+	}
 }

@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?><!--Converted at: Wed May 11 15:49:38 KST 2016-->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="TestApiDAO">
+<mapper namespace="ApiDAO">
+
+
+	<!-- 급상승 키워드 연계 적재 -->
+	<insert id="risingSuddenKeyword" parameterType="egovframework.gcall.dto.ApiRisingSuddenKeywordDTO">
+		INSERT INTO DB_HOMEPAGE.TB_RISING_RESULT
+		(
+			RISE_SEQ,
+			RQST_ID,
+			KYWD,
+			WGVL_VL,
+			RISE_RANK,
+			FRQ,
+			BFR_RANK,
+			SCR,
+			LAST_OTPT_YMD
+		)
+		VALUES(
+			(SELECT SEQ FROM (SELECT IFNULL(MAX(RISE_SEQ),0)+1 AS SEQ FROM DB_HOMEPAGE.TB_RISING_RESULT) A),
+			#{rqstId},
+			#{kywd},
+			#{wgvlVl},
+			#{riseRank},
+			#{frq},
+			#{bfrRank},
+			#{scr},
+			SYSDATE()
+		)
+	</insert>
+	
 
 	<!-- 키워드 랭킹 연계 적재 -->
-	<insert id="keywordRankInfoInsert" parameterType="egovframework.gcall.dto.ApiKeywordRankDTO">
-		INSERT INTO DB_HOMEPAGE.TB_KYWD_RANK_INFO
+	<insert id="keywordRankInsert" parameterType="egovframework.gcall.dto.ApiKeywordRankDTO">
+		INSERT INTO DB_HOMEPAGE.TB_TOP_RESULT
 		(
 			KYWD_RANK_SEQ,
 			RQST_ID,
@@ -19,14 +48,14 @@
 		)
 		VALUES
 		(
-			(SELECT SEQ FROM (SELECT IFNULL(MAX(KYWD_RANK_SEQ),0)+1 AS SEQ FROM DB_HOMEPAGE.TB_KYWD_RANK_INFO) A),
-			#{requestId},
-			#{term},
-			#{weight},
-			#{rank},
-			#{df},
-			#{beforeRank},
-			#{score},
+			(SELECT SEQ FROM (SELECT IFNULL(MAX(KYWD_RANK_SEQ),0)+1 AS SEQ FROM DB_HOMEPAGE.TB_TOP_RESULT) A),
+			#{rqstId},
+			#{kywd},
+			#{wgvlVl},
+			#{prord},
+			#{frq},
+			#{bfrRank},
+			#{scr},
 			SYSDATE()
 		)
 	</insert>

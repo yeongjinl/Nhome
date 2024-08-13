@@ -1,11 +1,17 @@
 package egovframework.gcall.dto;
 
-public class ApiKeywordRankDTO {
+public class ApiTopicRankDTO {
+	
+	// 연관어 Graph 연계
+	
+	
+	
+	// 연관어 키워드 결과
 	
 	private String rqstId;
 	private String kywd;
 	private double wgvlVl;
-	private double prord;
+	private double riseRank;
 	private double frq;
 	private double bfrRank;
 	private double scr;
@@ -20,8 +26,8 @@ public class ApiKeywordRankDTO {
 	public double getWgvlVl() {
 		return wgvlVl;
 	}
-	public double getPrord() {
-		return prord;
+	public double getRiseRank() {
+		return riseRank;
 	}
 	public double getFrq() {
 		return frq;
@@ -43,8 +49,8 @@ public class ApiKeywordRankDTO {
 	public void setWgvlVl(double wgvlVl) {
 		this.wgvlVl = wgvlVl;
 	}
-	public void setPrord(double prord) {
-		this.prord = prord;
+	public void setRiseRank(double riseRank) {
+		this.riseRank = riseRank;
 	}
 	public void setFrq(double frq) {
 		this.frq = frq;
@@ -55,7 +61,7 @@ public class ApiKeywordRankDTO {
 	public void setScr(double scr) {
 		this.scr = scr;
 	}
-    
+	
 }
 
 
